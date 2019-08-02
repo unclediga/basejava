@@ -8,7 +8,7 @@ import java.util.Arrays;
  * Array based storage for Resumes
  */
 public abstract class AbstractArrayStorage implements Storage {
-    protected static final int STORAGE_LIMIT = 10000;
+    protected static final int STORAGE_LIMIT = 10_000;
 
     protected Resume[] storage = new Resume[STORAGE_LIMIT];
     protected int size = 0;
@@ -24,7 +24,7 @@ public abstract class AbstractArrayStorage implements Storage {
 
     public Resume get(String uuid) {
         int index = getIndex(uuid);
-        if (index == -1) {
+        if (index < 0) {
             System.out.println("Resume " + uuid + " not exist");
             return null;
         }
@@ -37,32 +37,28 @@ public abstract class AbstractArrayStorage implements Storage {
     }
 
     @Override
-    public void update(Resume r) {
-        int index = getIndex(r.getUuid());
+    public void update(Resume resume) {
+        int index = getIndex(resume.getUuid());
         if (index < 0) {
-            System.out.println("Resume " + r.getUuid() + " not exist");
+            System.out.println("Resume " + resume.getUuid() + " not exist");
         } else {
-            updateElement(index, r);
+            storage[index] = resume;
         }
     }
 
     @Override
-    public void save(Resume r) {
-        if (size == 0) {
-            storage[0] = r;
-            size = 1;
-        } else if (size >= STORAGE_LIMIT) {
+    public void save(Resume resume) {
+        if (size >= STORAGE_LIMIT) {
             System.out.println("Storage overflow");
         } else {
-            int index = getIndex(r.getUuid());
+            int index = getIndex(resume.getUuid());
             if (index > 0) {
-                System.out.println("Resume " + r.getUuid() + " already exist");
+                System.out.println("Resume " + resume.getUuid() + " already exist");
             } else {
-                saveElement(index, r);
+                saveElement(index, resume);
                 size++;
             }
         }
-
     }
 
     @Override
@@ -73,11 +69,10 @@ public abstract class AbstractArrayStorage implements Storage {
         } else {
             deleteElement(index);
             size--;
+            storage[size] = null;
         }
 
     }
-
-    protected abstract void updateElement(int index, Resume r);
 
     protected abstract void saveElement(int index, Resume r);
 
