@@ -10,6 +10,8 @@ import ru.javawebinar.basejava.model.Resume;
 
 import java.util.Arrays;
 
+import static ru.javawebinar.basejava.storage.AbstractArrayStorage.STORAGE_LIMIT;
+
 public abstract class AbstractArrayStorageTest {
     private Storage storage;
 
@@ -80,11 +82,9 @@ public abstract class AbstractArrayStorageTest {
     @Test(expected = StorageException.class)
     public void saveWithOverflow() throws Exception {
         try {
-            for (int i = storage.size() + 1; i <= 10_000; i++) {
-                storage.save(new Resume("uuid" + i));
+            for (int i = storage.size(); i < STORAGE_LIMIT; i++) {
+                storage.save(new Resume("uuid" + (i+1)));
             }
-        } catch (NotExistStorageException | ExistStorageException e) {
-            Assert.fail("Unexpected exception type. Expected: 'Overflow', actual:'" + e.getMessage() + "'");
         } catch (StorageException se) {
             Assert.fail("Get 'Overflow exception' when storage is not full");
         }
