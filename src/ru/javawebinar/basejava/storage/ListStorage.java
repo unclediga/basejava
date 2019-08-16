@@ -21,16 +21,6 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    public void update(Resume resume) {
-        int index = getIndex(resume.getUuid());
-        if (index < 0) {
-            throw new NotExistStorageException(resume.getUuid());
-        } else {
-            storage.add(index, resume);
-        }
-    }
-
-    @Override
     public Resume[] getAll() {
         return storage.toArray(new Resume[0]);
     }
@@ -53,15 +43,6 @@ public class ListStorage extends AbstractStorage {
         }
         fillDeletedElement(index);
 
-    }
-
-    @Override
-    public Resume get(String uuid) {
-        int index = getIndex(uuid);
-        if (index < 0) {
-            throw new NotExistStorageException(uuid);
-        }
-        return getElementByIndex(index);
     }
 
     @Override
