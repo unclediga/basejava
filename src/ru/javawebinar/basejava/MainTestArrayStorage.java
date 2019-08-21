@@ -21,14 +21,20 @@ public class MainTestArrayStorage {
         System.out.println("Get r1: " + ARRAY_STORAGE.get(r1.getUuid()));
         System.out.println("Size: " + ARRAY_STORAGE.size());
 
-        System.out.println("Get dummy: " + ARRAY_STORAGE.get("dummy"));
-
+        System.out.println("Get dummy...");
+        try {
+            ARRAY_STORAGE.get("dummy");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         printAll();
+        System.out.println("delete r1...");
         ARRAY_STORAGE.delete(r1.getUuid());
         printAll();
+
+        System.out.println("clear...");
         ARRAY_STORAGE.clear();
         printAll();
-
         System.out.println("Size: " + ARRAY_STORAGE.size());
     }
 
