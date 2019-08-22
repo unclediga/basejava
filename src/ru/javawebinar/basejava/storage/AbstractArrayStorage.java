@@ -1,6 +1,5 @@
 package ru.javawebinar.basejava.storage;
 
-import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
 
 import java.util.Arrays;
@@ -31,22 +30,6 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     @Override
     public Resume[] getAll() {
         return Arrays.copyOf(storage, size);
-    }
-
-    @Override
-    public void save(Resume resume) {
-        if (size == STORAGE_LIMIT) {
-            throw new StorageException("Storage overflow", resume.getUuid());
-        };
-        super.save(resume);
-        size++;
-    }
-
-    @Override
-    public void delete(String uuid) {
-        super.delete(uuid);
-        updateElement(null, size - 1);
-        size--;
     }
 
     @Override

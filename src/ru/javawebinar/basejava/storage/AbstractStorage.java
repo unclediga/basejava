@@ -24,6 +24,7 @@ public abstract class AbstractStorage implements Storage {
         }
         return getElementByIndex(index);
     }
+
     @Override
     public void save(Resume resume) {
         int index = getIndex(resume.getUuid());
