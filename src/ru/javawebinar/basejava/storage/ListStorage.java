@@ -3,6 +3,7 @@ package ru.javawebinar.basejava.storage;
 import ru.javawebinar.basejava.model.Resume;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ListStorage extends AbstractStorage {
@@ -35,7 +36,15 @@ public class ListStorage extends AbstractStorage {
 
     @Override
     protected int getIndex(String uuid) {
-        return storage.indexOf(new Resume(uuid));
+        Iterator it = storage.iterator();
+        int index = 0;
+        while (it.hasNext()) {
+            Resume resume = (Resume) it.next();
+            if (resume.getUuid().equals(uuid))
+                return index;
+            index++;
+        }
+        return -1;
     }
 
     @Override
