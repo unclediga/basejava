@@ -25,17 +25,18 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    protected void fillDeletedElement(int index) {
-        storage.remove(index);
+    protected void fillDeletedElement(Object searchKey) {
+        // here needed exactly "list.remove(int)"
+        storage.remove(((Integer) searchKey).intValue());
     }
 
     @Override
-    protected void insertElement(Resume resume, int index) {
+    protected void insertElement(Resume resume, Object searchKey) {
         storage.add(resume);
     }
 
     @Override
-    protected int getIndex(String uuid) {
+    protected Object getSearchKey(String uuid) {
         Iterator it = storage.iterator();
         int index = 0;
         while (it.hasNext()) {
@@ -48,12 +49,17 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    protected Resume getElementByIndex(int index) {
-        return storage.get(index);
+    protected Resume getElementByKey(Object key) {
+        return storage.get((Integer) key);
     }
 
     @Override
-    protected void updateElement(Resume resume, int index) {
-        storage.add(index, resume);
+    protected void updateElement(Resume resume, Object searchKey) {
+        storage.add((Integer) searchKey, resume);
+    }
+
+    @Override
+    protected boolean isKeyEmpty(Object searchKey) {
+        return (searchKey == null) || (((Integer) searchKey) == -1);
     }
 }

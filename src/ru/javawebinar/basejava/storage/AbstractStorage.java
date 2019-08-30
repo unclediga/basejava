@@ -8,49 +8,51 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public void update(Resume resume) {
-        int index = getIndex(resume.getUuid());
-        if (index < 0) {
+        Object searchKey = getSearchKey(resume.getUuid());
+        if (isKeyEmpty(searchKey)) {
             throw new NotExistStorageException(resume.getUuid());
         } else {
-            updateElement(resume, index);
+            updateElement(resume, searchKey);
         }
     }
 
     @Override
     public Resume get(String uuid) {
-        int index = getIndex(uuid);
-        if (index < 0) {
+        Object searchKey = getSearchKey(uuid);
+        if (isKeyEmpty(searchKey)) {
             throw new NotExistStorageException(uuid);
         }
-        return getElementByIndex(index);
+        return getElementByKey(searchKey);
     }
 
     @Override
     public void save(Resume resume) {
-        int index = getIndex(resume.getUuid());
-        if (index >= 0) {
+        Object searchKey = getSearchKey(resume.getUuid());
+        if (!isKeyEmpty(searchKey)) {
             throw new ExistStorageException(resume.getUuid());
         } else {
-            insertElement(resume,index);
+            insertElement(resume,searchKey);
         }
     }
 
     @Override
     public void delete(String uuid) {
-        int index = getIndex(uuid);
-        if (index < 0) {
+        Object searchKey = getSearchKey(uuid);
+        if (isKeyEmpty(searchKey)) {
             throw new NotExistStorageException(uuid);
         }
-        fillDeletedElement(index);
+        fillDeletedElement(searchKey);
     }
 
-    protected abstract void fillDeletedElement(int index);
+    protected abstract void fillDeletedElement(Object searchKey);
 
-    protected abstract void insertElement(Resume resume, int index);
+    protected abstract void insertElement(Resume resume, Object searchKey);
 
-    protected abstract int getIndex(String uuid);
+    protected abstract Object getSearchKey(String uuid);
 
-    protected abstract Resume getElementByIndex(int index);
+    protected abstract Resume getElementByKey(Object key);
 
-    protected abstract void updateElement(Resume resume, int index);
+    protected abstract void updateElement(Resume resume, Object searchKey);
+
+    protected abstract boolean isKeyEmpty(Object searchKey);
 }
