@@ -3,11 +3,10 @@ package ru.javawebinar.basejava.storage;
 import ru.javawebinar.basejava.model.Resume;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ListStorage extends AbstractStorage {
-    protected final List<Resume> storage = new ArrayList<>();
+    private final List<Resume> storage = new ArrayList<>();
 
     @Override
     public int size() {
@@ -37,19 +36,16 @@ public class ListStorage extends AbstractStorage {
 
     @Override
     protected Object getSearchKey(String uuid) {
-        Iterator it = storage.iterator();
-        int index = 0;
-        while (it.hasNext()) {
-            Resume resume = (Resume) it.next();
+        for (int index = 0; index < size(); index++) {
+            Resume resume = storage.get(index);
             if (resume.getUuid().equals(uuid))
                 return index;
-            index++;
         }
         return -1;
     }
 
     @Override
-    protected Resume getElementByKey(Object key) {
+    protected Resume getElement(Object key) {
         return storage.get((Integer) key);
     }
 
@@ -59,7 +55,7 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    protected boolean isKeyEmpty(Object searchKey) {
-        return (searchKey == null) || (((Integer) searchKey) == -1);
+    protected boolean isKeyExists(Object searchKey) {
+        return ((Integer) searchKey) > -1;
     }
 }

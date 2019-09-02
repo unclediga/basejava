@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MapStorage extends AbstractStorage {
-    protected final Map<String, Resume> storage = new HashMap<>();
+    private final Map<String, Resume> storage = new HashMap<>();
 
     @Override
     public int size() {
@@ -35,11 +35,11 @@ public class MapStorage extends AbstractStorage {
 
     @Override
     protected Object getSearchKey(String uuid) {
-        return storage.containsKey(uuid) ? uuid : null;
+        return uuid;
     }
 
     @Override
-    protected Resume getElementByKey(Object key) {
+    protected Resume getElement(Object key) {
         return storage.get(key);
     }
 
@@ -49,7 +49,7 @@ public class MapStorage extends AbstractStorage {
     }
 
     @Override
-    protected boolean isKeyEmpty(Object searchKey) {
-        return searchKey == null;
+    protected boolean isKeyExists(Object searchKey) {
+        return storage.containsKey(searchKey);
     }
 }
