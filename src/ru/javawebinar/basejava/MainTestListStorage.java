@@ -1,13 +1,10 @@
 package ru.javawebinar.basejava;
 
 import ru.javawebinar.basejava.model.Resume;
-import ru.javawebinar.basejava.storage.ArrayStorage;
+import ru.javawebinar.basejava.storage.ListStorage;
 
-/**
- * Test ru.javawebinar.basejava.storage.ArrayStorage
- */
-public class MainTestArrayStorage {
-    static final ArrayStorage ARRAY_STORAGE = new ArrayStorage();
+public class MainTestListStorage {
+    static final ListStorage ARRAY_STORAGE = new ListStorage();
 
     public static void main(String[] args) {
         Resume r1 = new Resume("uuid1");
@@ -17,6 +14,8 @@ public class MainTestArrayStorage {
         ARRAY_STORAGE.save(r1);
         ARRAY_STORAGE.save(r2);
         ARRAY_STORAGE.save(r3);
+        printAll();
+        System.out.println("Size: " + ARRAY_STORAGE.size());
 
         System.out.println("Get r1: " + ARRAY_STORAGE.get(r1.getUuid()));
         System.out.println("Size: " + ARRAY_STORAGE.size());
@@ -28,6 +27,7 @@ public class MainTestArrayStorage {
             e.printStackTrace();
         }
         printAll();
+
         System.out.println("delete r1...");
         ARRAY_STORAGE.delete(r1.getUuid());
         printAll();
@@ -39,7 +39,7 @@ public class MainTestArrayStorage {
     }
 
     static void printAll() {
-        System.out.println("\nGet All");
+        System.out.println("-- Get All: --");
         for (Resume r : ARRAY_STORAGE.getAll()) {
             System.out.println(r);
         }
