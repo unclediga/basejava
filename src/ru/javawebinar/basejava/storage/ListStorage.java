@@ -24,7 +24,7 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    protected void fillDeletedElement(Object searchKey) {
+    protected void deleteElement(Object searchKey) {
         // here needed exactly "list.remove(int)"
         storage.remove(((Integer) searchKey).intValue());
     }

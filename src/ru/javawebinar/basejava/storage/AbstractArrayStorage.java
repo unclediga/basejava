@@ -44,7 +44,7 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     }
 
     @Override
-    protected void fillDeletedElement(Object searchKey){
+    protected void deleteElement(Object searchKey){
         shrinkArray((Integer) searchKey);
         storage[size - 1] = null;
         size--;

@@ -24,7 +24,7 @@ public class MapStorage extends AbstractStorage {
     }
 
     @Override
-    protected void fillDeletedElement(Object searchKey) {
+    protected void deleteElement(Object searchKey) {
         storage.remove(searchKey);
     }
 

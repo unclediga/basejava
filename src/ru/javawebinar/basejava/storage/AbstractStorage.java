@@ -41,10 +41,10 @@ public abstract class AbstractStorage implements Storage {
         if (!isKeyExists(searchKey)) {
             throw new NotExistStorageException(uuid);
         }
-        fillDeletedElement(searchKey);
+        deleteElement(searchKey);
     }
 
-    protected abstract void fillDeletedElement(Object searchKey);
+    protected abstract void deleteElement(Object searchKey);
 
     protected abstract void insertElement(Resume resume, Object searchKey);
 
