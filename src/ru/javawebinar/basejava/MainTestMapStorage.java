@@ -1,46 +1,55 @@
 package ru.javawebinar.basejava;
 
 import ru.javawebinar.basejava.model.Resume;
+import ru.javawebinar.basejava.storage.AbstractStorage;
+import ru.javawebinar.basejava.storage.MapResumeStorage;
 import ru.javawebinar.basejava.storage.MapUuidStorage;
 
 public class MainTestMapStorage {
-    static final MapUuidStorage ARRAY_STORAGE = new MapUuidStorage();
 
     public static void main(String[] args) {
-        Resume r1 = new Resume("uuid1");
-        Resume r2 = new Resume("uuid2");
-        Resume r3 = new Resume("uuid3");
+        System.out.println("##### Map Uuid #####");
+        TestMap(new MapUuidStorage());
+        System.out.println("##### Map Resume #####");
+        TestMap(new MapResumeStorage());
+    }
 
-        ARRAY_STORAGE.save(r1);
-        ARRAY_STORAGE.save(r2);
-        ARRAY_STORAGE.save(r3);
-        printAll();
-        System.out.println("Size: " + ARRAY_STORAGE.size());
+    private static void TestMap(AbstractStorage storage) {
+        Resume r1 = new Resume("uuid1", "Full Name1");
+        Resume r2 = new Resume("uuid2", "Full Name2");
+        Resume r3 = new Resume("uuid3", "Full Name3");
 
-        System.out.println("Get r1: " + ARRAY_STORAGE.get(r1.getUuid()));
-        System.out.println("Size: " + ARRAY_STORAGE.size());
+        storage.save(r1);
+        storage.save(r2);
+        storage.save(r3);
+
+        printAll(storage);
+        System.out.println("Size: " + storage.size());
+
+        System.out.println("Get r1: " + storage.get(r1.getUuid()));
+        System.out.println("Size: " + storage.size());
 
         System.out.println("Get dummy...");
         try {
-            ARRAY_STORAGE.get("dummy");
+            storage.get("dummy");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        printAll();
+        printAll(storage);
 
         System.out.println("delete r1...");
-        ARRAY_STORAGE.delete(r1.getUuid());
-        printAll();
+        storage.delete(r1.getUuid());
+        printAll(storage);
 
         System.out.println("clear...");
-        ARRAY_STORAGE.clear();
-        printAll();
-        System.out.println("Size: " + ARRAY_STORAGE.size());
+        storage.clear();
+        printAll(storage);
+        System.out.println("Size: " + storage.size());
     }
 
-    static void printAll() {
+    private static void printAll(AbstractStorage storage) {
         System.out.println("-- Get All: --");
-        for (Resume r : ARRAY_STORAGE.getAll()) {
+        for (Resume r : storage.getAllSorted()) {
             System.out.println(r);
         }
     }
