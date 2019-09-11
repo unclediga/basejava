@@ -21,7 +21,7 @@ public class ListStorage extends AbstractStorage {
     @Override
     protected void deleteElement(Object searchKey) {
         // here needed exactly "list.remove(int)"
-        storage.remove(((Integer) searchKey).intValue());
+        storage.remove((int) searchKey);
     }
 
     @Override
@@ -41,17 +41,17 @@ public class ListStorage extends AbstractStorage {
 
     @Override
     protected List<Resume> getListElements() {
-        return storage;
+        return new ArrayList<>(storage);
     }
 
     @Override
     protected Resume getElement(Object searchKey) {
-        return storage.get((Integer) searchKey);
+        return storage.get((int) searchKey);
     }
 
     @Override
     protected void updateElement(Resume resume, Object searchKey) {
-        storage.add((Integer) searchKey, resume);
+        storage.add((int) searchKey, resume);
     }
 
     @Override

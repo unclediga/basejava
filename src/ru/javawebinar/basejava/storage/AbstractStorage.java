@@ -61,7 +61,7 @@ public abstract class AbstractStorage implements Storage {
 
     protected abstract Object getSearchKey(String uuid);
 
-    protected abstract Resume getElement(Object key);
+    protected abstract Resume getElement(Object searchKey);
 
     protected abstract void updateElement(Resume resume, Object searchKey);
 

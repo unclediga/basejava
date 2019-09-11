@@ -9,6 +9,7 @@ import ru.javawebinar.basejava.model.Resume;
 
 import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractStorageTest {
@@ -56,7 +57,7 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void update() throws Exception {
-        Resume resume = new Resume(UUID_2,"Full Name2");
+        Resume resume = new Resume(UUID_2, "Full Name2");
         storage.update(resume);
         Assert.assertSame(resume, storage.get(UUID_2));
     }
@@ -69,10 +70,8 @@ public abstract class AbstractStorageTest {
     @Test
     public void getAllSorted() throws Exception {
         final List<Resume> actualStorage = storage.getAllSorted();
-        assertEquals(3, actualStorage.size());
-        assertEquals(resume_1, actualStorage.get(0));
-        assertEquals(resume_2, actualStorage.get(1));
-        assertEquals(resume_3, actualStorage.get(2));
+        final Resume[] model = new Resume[]{resume_1, resume_2, resume_3};
+        assertArrayEquals(actualStorage.toArray(), model);
     }
 
     @Test
