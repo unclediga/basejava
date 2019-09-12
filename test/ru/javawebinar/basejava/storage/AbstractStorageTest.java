@@ -7,9 +7,8 @@ import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
 
-import java.util.List;
+import java.util.Arrays;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractStorageTest {
@@ -69,9 +68,7 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void getAllSorted() throws Exception {
-        final List<Resume> actualStorage = storage.getAllSorted();
-        final Resume[] model = new Resume[]{resume_1, resume_2, resume_3};
-        assertArrayEquals(actualStorage.toArray(), model);
+        assertEquals(storage.getAllSorted(), Arrays.asList(resume_1, resume_2, resume_3));
     }
 
     @Test

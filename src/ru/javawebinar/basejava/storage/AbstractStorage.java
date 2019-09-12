@@ -4,7 +4,6 @@ import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,7 +51,7 @@ public abstract class AbstractStorage implements Storage {
     public List<Resume> getAllSorted() {
         List<Resume> listElements = getListElements();
         Collections.sort(listElements);
-        return new ArrayList<>(listElements);
+        return listElements;
     }
 
     protected abstract void deleteElement(Object searchKey);
