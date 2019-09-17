@@ -47,7 +47,7 @@ public class MainTestMapStorage {
         System.out.println("Size: " + storage.size());
     }
 
-    private static void printAll(AbstractStorage storage) {
+    private static void printAll(AbstractStorage<Resume> storage) {
         System.out.println("-- Get All: --");
         for (Resume r : storage.getAllSorted()) {
             System.out.println(r);

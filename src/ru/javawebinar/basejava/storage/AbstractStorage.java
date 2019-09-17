@@ -7,42 +7,42 @@ import ru.javawebinar.basejava.model.Resume;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AbstractStorage implements Storage {
+public abstract class AbstractStorage<SK> implements Storage {
 
     @Override
     public void update(Resume resume) {
-        Object searchKey = getExistedSearchKey(resume.getUuid());
+        SK searchKey = getExistedSearchKey(resume.getUuid());
         updateElement(resume, searchKey);
     }
 
     @Override
     public Resume get(String uuid) {
-        Object searchKey = getExistedSearchKey(uuid);
+        SK searchKey = getExistedSearchKey(uuid);
         return getElement(searchKey);
     }
 
     @Override
     public void save(Resume resume) {
-        Object searchKey = getNotExistedSearchKey(resume.getUuid());
+        SK searchKey = getNotExistedSearchKey(resume.getUuid());
         insertElement(resume, searchKey);
     }
 
     @Override
     public void delete(String uuid) {
-        Object searchKey = getExistedSearchKey(uuid);
+        SK searchKey = getExistedSearchKey(uuid);
         deleteElement(searchKey);
     }
 
-    private Object getExistedSearchKey(String uuid) {
-        Object searchKey = getSearchKey(uuid);
+    private SK getExistedSearchKey(String uuid) {
+        SK searchKey = getSearchKey(uuid);
         if (!isKeyExists(searchKey)) {
             throw new NotExistStorageException(uuid);
         }
         return searchKey;
     }
 
-    private Object getNotExistedSearchKey(String uuid) {
-        Object searchKey = getSearchKey(uuid);
+    private SK getNotExistedSearchKey(String uuid) {
+        SK searchKey = getSearchKey(uuid);
         if (isKeyExists(searchKey)) {
             throw new ExistStorageException(uuid);
         }
@@ -56,17 +56,17 @@ public abstract class AbstractStorage implements Storage {
         return listElements;
     }
 
-    protected abstract void deleteElement(Object searchKey);
+    protected abstract void deleteElement(SK searchKey);
 
-    protected abstract void insertElement(Resume resume, Object searchKey);
+    protected abstract void insertElement(Resume resume, SK searchKey);
 
-    protected abstract Object getSearchKey(String uuid);
+    protected abstract SK getSearchKey(String uuid);
 
-    protected abstract Resume getElement(Object searchKey);
+    protected abstract Resume getElement(SK searchKey);
 
-    protected abstract void updateElement(Resume resume, Object searchKey);
+    protected abstract void updateElement(Resume resume, SK searchKey);
 
-    protected abstract boolean isKeyExists(Object searchKey);
+    protected abstract boolean isKeyExists(SK searchKey);
 
     protected abstract List<Resume> getListElements();
 }

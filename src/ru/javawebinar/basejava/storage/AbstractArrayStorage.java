@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Array based storage for Resumes
  */
-public abstract class AbstractArrayStorage extends AbstractStorage {
+public abstract class AbstractArrayStorage extends AbstractStorage<Integer> {
     protected static final int STORAGE_LIMIT = 10_000;
 
     protected Resume[] storage = new Resume[STORAGE_LIMIT];
@@ -27,24 +27,24 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     }
 
     @Override
-    protected Resume getElement(Object index) {
+    protected Resume getElement(Integer index) {
         return storage[(int) index];
     }
 
     @Override
-    protected void updateElement(Resume resume, Object index) {
+    protected void updateElement(Resume resume, Integer index) {
         storage[(int) index] = resume;
     }
 
     @Override
-    protected void deleteElement(Object index) {
+    protected void deleteElement(Integer index) {
         shrinkArray((int) index);
         storage[size - 1] = null;
         size--;
     }
 
     @Override
-    protected void insertElement(Resume resume, Object index) {
+    protected void insertElement(Resume resume, Integer index) {
         if (size == STORAGE_LIMIT) {
             throw new StorageException("Storage overflow", resume.getUuid());
         }
@@ -58,7 +58,7 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     protected abstract int expandArray(int index);
 
     @Override
-    protected boolean isKeyExists(Object index) {
+    protected boolean isKeyExists(Integer index) {
         return (int)index > -1;
     }
 
