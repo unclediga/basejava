@@ -4,6 +4,7 @@ import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Array based storage for Resumes
@@ -25,37 +26,29 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
         size = 0;
     }
 
-    /**
-     * @return array, contains only Resumes in storage (without null)
-     */
     @Override
-    public Resume[] getAll() {
-        return Arrays.copyOf(storage, size);
+    protected Resume getElement(Object index) {
+        return storage[(int) index];
     }
 
     @Override
-    protected Resume getElement(Object key) {
-        return storage[(Integer) key];
+    protected void updateElement(Resume resume, Object index) {
+        storage[(int) index] = resume;
     }
 
     @Override
-    protected void updateElement(Resume resume, Object searchKey) {
-        storage[(Integer) searchKey] = resume;
-    }
-
-    @Override
-    protected void deleteElement(Object searchKey){
-        shrinkArray((Integer) searchKey);
+    protected void deleteElement(Object index) {
+        shrinkArray((int) index);
         storage[size - 1] = null;
         size--;
     }
 
     @Override
-    protected void insertElement(Resume resume, Object searchKey){
+    protected void insertElement(Resume resume, Object index) {
         if (size == STORAGE_LIMIT) {
             throw new StorageException("Storage overflow", resume.getUuid());
         }
-        int insertIndex = expandArray((Integer) searchKey);
+        int insertIndex = expandArray((int) index);
         storage[insertIndex] = resume;
         size++;
     }
@@ -65,7 +58,12 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     protected abstract int expandArray(int index);
 
     @Override
-    protected boolean isKeyExists(Object searchKey) {
-        return (Integer) searchKey > -1;
+    protected boolean isKeyExists(Object index) {
+        return (int)index > -1;
+    }
+
+    @Override
+    protected List<Resume> getListElements() {
+        return Arrays.asList(Arrays.copyOf(storage, size));
     }
 }
