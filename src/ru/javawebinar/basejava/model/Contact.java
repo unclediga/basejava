@@ -4,12 +4,10 @@ import java.util.Objects;
 
 public class Contact {
     private ContactType type;
-    private String title;
     private String value;
 
-    public Contact(ContactType type, String title, String value) {
+    public Contact(ContactType type, String value) {
         this.type = type;
-        this.title = title;
         this.value = value;
     }
 
@@ -19,14 +17,6 @@ public class Contact {
 
     public void setType(ContactType type) {
         this.type = type;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getValue() {
@@ -43,12 +33,11 @@ public class Contact {
         if (o == null || getClass() != o.getClass()) return false;
         Contact contact = (Contact) o;
         return type == contact.type &&
-                title.equals(contact.title) &&
                 value.equals(contact.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, title, value);
+        return Objects.hash(type, value);
     }
 }

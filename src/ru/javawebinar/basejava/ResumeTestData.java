@@ -1,5 +1,6 @@
 package ru.javawebinar.basejava;
 
+import ru.javawebinar.basejava.model.Contact;
 import ru.javawebinar.basejava.model.ContactType;
 import ru.javawebinar.basejava.model.Resume;
 
@@ -7,13 +8,13 @@ public class ResumeTestData {
     public static void main(String[] args) {
 
         Resume resume = new Resume("Григорий Кислин");
-        resume.addContact(ContactType.TELEPHONE, "", "+7(921) 855-0482");
-        resume.addContact(ContactType.EMAIL, "", "gkislin@yandex.ru");
-        resume.addContact(ContactType.MESSENGER, "Skype", "grigory.kislin");
-        resume.addContact(ContactType.SOCIALNET, "LinkedIn", "https://www.linkedin.com/in/gkislin");
-        resume.addContact(ContactType.WEBLINK, "GitHub", "https://github.com/gkislin");
-        resume.addContact(ContactType.WEBLINK, "StackOverflow", "https://stackoverflow.com/users/548473");
-        resume.addContact(ContactType.WEBLINK, "HomePage", "http://gkislin.ru/");
+        resume.setContact(new Contact(ContactType.TELEPHONE, "+7(921) 855-0482"));
+        resume.setContact(new Contact(ContactType.EMAIL, "gkislin@yandex.ru"));
+        resume.setContact(new Contact(ContactType.SKYPE, "grigory.kislin"));
+        resume.setContact(new Contact(ContactType.LINKEDIN, "https://www.linkedin.com/in/gkislin"));
+        resume.setContact(new Contact(ContactType.GITHUB, "https://github.com/gkislin"));
+        resume.setContact(new Contact(ContactType.STACKOVERFLOW, "https://stackoverflow.com/users/548473"));
+        resume.setContact(new Contact(ContactType.WEBLINK, "http://gkislin.ru/"));
 
         resume.addObjective("Ведущий стажировок и корпоративного обучения по Java Web и Enterprise технологиям");
         resume.addPersonal("Аналитический склад ума, сильная логика, креативность, инициативность. Пурист кода и архитектуры.");
@@ -61,34 +62,34 @@ public class ResumeTestData {
 
 
         resume.addEducation("Coursera", "https://www.coursera.org/course/progfun",
-                "03/2013", "05/2013", "\"Functional Programming Principles in Scala\" by " +
+                3, 2013, 5, 2013, "\"Functional Programming Principles in Scala\" by " +
                         "Martin Odersky");
         resume.addEducation("Luxoft", "http://www.luxoft-training.ru/training/catalog/course.html?ID=22366",
-                "03/2011", "04/2011", "Курс \"Объектно-ориентированный анализ ИС. " +
+                3, 2011, 4, 2011, "Курс \"Объектно-ориентированный анализ ИС. " +
                         "Концептуальное моделирование на UML.\"");
         resume.addEducation("Siemens AG", "http://www.siemens.ru/",
-                "01/2005", "04/2005", "3 месяца обучения мобильным IN сетям (Берлин)");
+                1, 2005, 4, 2005, "3 месяца обучения мобильным IN сетям (Берлин)");
         resume.addEducation("Alcatel", "http://www.alcatel.ru/",
-                "09/1997", "03/1998", "6 месяцев обучения цифровым телефонным сетям (Москва)");
+                9, 1997, 3, 1998, "6 месяцев обучения цифровым телефонным сетям (Москва)");
         resume.addEducation("Санкт-Петербургский национальный исследовательский университет информационных " +
                         "технологий, механики и оптики", "http://www.ifmo.ru/",
-                "09/1993", "07/1996", "Аспирантура (программист С, С++)");
+                9, 1993, 7, 1996, "Аспирантура (программист С, С++)");
         resume.addEducation("Санкт-Петербургский национальный исследовательский университет информационных " +
                         "технологий, механики и оптики", "http://www.school.mipt.ru/",
-                "09/1987", "07/1993", "Инженер (программист Fortran, C)");
+                9, 1987, 7, 1993, "Инженер (программист Fortran, C)");
         resume.addEducation("Заочная физико-техническая школа при МФТИ", "http://www.school.mipt.ru/",
-                "09/1984", "06/1987", "Закончил с отличием");
+                9, 1984, 6, 1987, "Закончил с отличием");
 
 
-        resume.addExperience("Java Online Projects", "http://javaops.ru/", "10/2013", "Сейчас",
+        resume.addExperience("Java Online Projects", "http://javaops.ru/", 10, 2013, 12, 2099,
                 "Автор проекта.",
                 "Создание, организация и проведение Java онлайн проектов и стажировок.");
-        resume.addExperience("Wrike", "https://www.wrike.com/", "10/2014", "01/2016",
+        resume.addExperience("Wrike", "https://www.wrike.com/", 10, 2014, 1, 2016,
                 "Старший разработчик ",
                 "(backend) Проектирование и разработка онлайн платформы управления проектами Wrike (Java 8 API, Maven, " +
                         "Spring, MyBatis, Guava, Vaadin, PostgreSQL, Redis). Двухфакторная аутентификация, авторизация " +
                         "по OAuth1, OAuth2, JWT SSO.");
-        resume.addExperience("RIT Center", null, "04/2012", "10/2014",
+        resume.addExperience("RIT Center", null, 4, 2012, 10, 2014,
                 "Java архитектор ",
                 "Организация процесса разработки системы ERP для разных окружений: релизная политика, " +
                         "версионирование, ведение CI (Jenkins), миграция базы (кастомизация Flyway), конфигурирование системы " +
@@ -97,27 +98,27 @@ public class ResumeTestData {
                         " Интеграция Alfresco JLAN для online редактирование из браузера документов MS Office. Maven + plugin " +
                         "development, Ant, Apache Commons, Spring security, Spring MVC, Tomcat,WSO2, xcmis, OpenCmis, Bonita, " +
                         "Python scripting, Unix shell remote scripting via ssh tunnels, PL/Python");
-        resume.addExperience("Luxoft (Deutsche Bank)", "http://www.luxoft.ru/", "12/2010", "04/2012",
+        resume.addExperience("Luxoft (Deutsche Bank)", "http://www.luxoft.ru/", 12, 2010, 4, 2012,
                 "Ведущий программист",
                 "Участие в проекте Deutsche Bank CRM (WebLogic, Hibernate, Spring, " +
                         "Spring MVC, SmartGWT, GWT, Jasper, Oracle). Реализация клиентской и серверной части CRM. " +
                         "Реализация RIA-приложения для администрирования, мониторинга и анализа результатов в области " +
                         "алгоритмического трейдинга. JPA, Spring, Spring-MVC, GWT, ExtGWT (GXT), Highstock, " +
                         "Commet, HTML5.");
-        resume.addExperience("Yota", "https://www.yota.ru/", "06/2008", "12/2010",
+        resume.addExperience("Yota", "https://www.yota.ru/", 6, 2008, 12, 2010,
                 "Ведущий специалист ",
                 "Дизайн и имплементация Java EE фреймворка для отдела \"Платежные Системы\" (GlassFish v2.1, v3, OC4J, " +
                         "EJB3, JAX-WS RI 2.1, Servlet 2.4, JSP, JMX, JMS, Maven2). Реализация администрирования, статистики " +
                         "и мониторинга фреймворка. Разработка online JMX клиента (Python/ Jython, Django, ExtJS)");
-        resume.addExperience("Enkata", "http://enkata.com/", "03/2007", "06/2008",
+        resume.addExperience("Enkata", "http://enkata.com/", 3, 2007, 6, 2008,
                 "Разработчик ПО ",
                 "Реализация клиентской (Eclipse RCP) и серверной (JBoss 4.2, Hibernate 3.0, Tomcat, JMS) частей " +
                         "кластерного J2EE приложения (OLAP, Data mining).");
-        resume.addExperience("Siemens AG", "https://www.siemens.com/ru/ru/home.html", "01/2005", "02/2007",
+        resume.addExperience("Siemens AG", "https://www.siemens.com/ru/ru/home.html", 1, 2005, 2, 2007,
                 "Разработчик ПО ",
                 "Разработка информационной модели, проектирование интерфейсов, реализация и отладка ПО на мобильной " +
                         "IN платформе Siemens @vantage (Java, Unix).");
-        resume.addExperience("Alcatel", "http://www.alcatel.ru/", "09/1997", "01/2005",
+        resume.addExperience("Alcatel", "http://www.alcatel.ru/", 9, 1997, 1, 2005,
                 "Инженер по аппаратному и программному тестированию",
                 "Тестирование, отладка, внедрение ПОцифровой телефонной станции Alcatel 1000 S12 (CHILL, ASM).");
 
