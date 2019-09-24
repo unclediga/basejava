@@ -1,6 +1,6 @@
 package ru.javawebinar.basejava.model;
 
-public abstract class Section {
+public abstract class AbstractSection {
     private String title;
 
     public String getTitle() {

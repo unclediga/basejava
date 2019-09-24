@@ -3,126 +3,67 @@
   <ID>JAVA</ID>
   <OriginalElement>ru.javawebinar.basejava.model.Resume</OriginalElement>
   <nodes>
-    <node x="335.50000000000006" y="742.0">ru.javawebinar.basejava.model.OrganizationSection</node>
-    <node x="182.50000000000006" y="742.0">ru.javawebinar.basejava.model.TextSection</node>
-    <node x="479.15312500000005" y="277.0">ru.javawebinar.basejava.model.Contact</node>
-    <node x="515.903125" y="0.0">ru.javawebinar.basejava.model.ContactType</node>
-    <node x="394.4845238095238" y="523.0">ru.javawebinar.basejava.model.OrganizationSection.OrganizationSectionEntry</node>
-    <node x="200.4220238095238" y="567.0">ru.javawebinar.basejava.model.Section</node>
-    <node x="230.24062499999997" y="883.0">ru.javawebinar.basejava.model.Resume</node>
-    <node x="10.5" y="742.0">ru.javawebinar.basejava.model.ListSection</node>
-    <node x="437.65312500000005" y="400.0">ru.javawebinar.basejava.model.Organization</node>
+    <node x="0.0" y="330.0">ru.javawebinar.basejava.model.OrganizationSection</node>
+    <node x="275.0" y="330.0">ru.javawebinar.basejava.model.TextSection</node>
+    <node x="818.3541666666667" y="88.0">ru.javawebinar.basejava.model.Contact</node>
+    <node x="666.3541666666667" y="0.0">ru.javawebinar.basejava.model.ContactType</node>
+    <node x="9.5" y="464.0">ru.javawebinar.basejava.model.OrganizationSection.OrganizationSectionEntry</node>
+    <node x="337.5" y="88.0">ru.javawebinar.basejava.model.AbstractSection</node>
+    <node x="599.0" y="297.0">ru.javawebinar.basejava.model.Resume</node>
+    <node x="427.0" y="330.0">ru.javawebinar.basejava.model.ListSection</node>
   </nodes>
   <notes />
   <edges>
-    <edge source="ru.javawebinar.basejava.model.Resume" target="ru.javawebinar.basejava.model.Section">
-      <point x="-113.2083333333332" y="-58.5" />
-      <point x="240.53229166666677" y="863.0" />
-      <point x="0.0" y="863.0" />
-      <point x="0.0" y="692.0" />
-      <point x="206.6720238095238" y="692.0" />
-      <point x="-43.75" y="25.5" />
-    </edge>
     <edge source="ru.javawebinar.basejava.model.OrganizationSection.OrganizationSectionEntry" target="ru.javawebinar.basejava.model.OrganizationSection">
-      <point x="88.5" y="69.5" />
-      <point x="600.9845238095238" y="712.0" />
-      <point x="542.6875" y="712.0" />
-      <point x="79.6875" y="-25.5" />
+      <point x="-88.5" y="-80.5" />
+      <point x="39.0" y="439.0" />
+      <point x="31.875" y="439.0" />
+      <point x="-95.625" y="25.5" />
     </edge>
-    <edge source="ru.javawebinar.basejava.model.Organization" target="ru.javawebinar.basejava.model.Contact">
-      <point x="52.875" y="-36.5" />
-      <point x="561.028125" y="380.0" />
-      <point x="547.653125" y="380.0" />
-      <point x="0.0" y="36.5" />
+    <edge source="ru.javawebinar.basejava.model.ListSection" target="ru.javawebinar.basejava.model.AbstractSection">
+      <point x="38.0" y="-25.5" />
+      <point x="541.0" y="267.0" />
+      <point x="450.25" y="267.0" />
+      <point x="30.75" y="25.5" />
     </edge>
-    <edge source="ru.javawebinar.basejava.model.OrganizationSection" target="ru.javawebinar.basejava.model.Organization">
-      <point x="111.5625" y="-25.5" />
-      <point x="574.5625" y="722.0" />
-      <point x="640.9845238095238" y="722.0" />
-      <point x="640.9845238095238" y="493.0" />
-      <point x="561.028125" y="493.0" />
-      <point x="52.875" y="36.5" />
-    </edge>
-    <edge source="ru.javawebinar.basejava.model.TextSection" target="ru.javawebinar.basejava.model.Section">
+    <edge source="ru.javawebinar.basejava.model.TextSection" target="ru.javawebinar.basejava.model.AbstractSection">
       <point x="33.0" y="-25.5" />
-      <point x="281.50000000000006" y="722.0" />
-      <point x="256.6720238095238" y="722.0" />
-      <point x="6.25" y="25.5" />
-    </edge>
-    <edge source="ru.javawebinar.basejava.model.Resume" target="ru.javawebinar.basejava.model.ContactType">
-      <point x="113.20833333333331" y="-58.5" />
-      <point x="466.9489583333333" y="863.0" />
-      <point x="700.1470238095238" y="863.0" />
-      <point x="700.1470238095238" y="247.0" />
-      <point x="634.703125" y="247.0" />
-      <point x="52.799999999999955" y="113.5" />
-    </edge>
-    <edge source="ru.javawebinar.basejava.model.OrganizationSection.OrganizationSectionEntry" target="ru.javawebinar.basejava.model.Organization">
-      <point x="59.0" y="-69.5" />
-      <point x="571.4845238095238" y="503.0" />
-      <point x="525.778125" y="503.0" />
-      <point x="17.625" y="36.5" />
-    </edge>
-    <edge source="ru.javawebinar.basejava.model.Contact" target="ru.javawebinar.basejava.model.ContactType">
-      <point x="-34.25" y="-36.5" />
-      <point x="513.403125" y="257.0" />
-      <point x="555.5031250000001" y="257.0" />
-      <point x="-26.399999999999977" y="113.5" />
+      <point x="374.0" y="277.0" />
+      <point x="409.25" y="277.0" />
+      <point x="-10.25" y="25.5" />
     </edge>
     <edge source="ru.javawebinar.basejava.model.Resume" target="ru.javawebinar.basejava.model.Contact">
-      <point x="51.45833333333337" y="-58.5" />
-      <point x="405.19895833333334" y="833.0" />
-      <point x="660.5470238095238" y="833.0" />
-      <point x="660.5470238095238" y="380.0" />
-      <point x="575.053125" y="380.0" />
-      <point x="27.399999999999977" y="36.5" />
+      <point x="70.75" y="-58.5" />
+      <point x="811.25" y="277.0" />
+      <point x="844.6041666666667" y="277.0" />
+      <point x="-26.25" y="25.5" />
+    </edge>
+    <edge source="ru.javawebinar.basejava.model.OrganizationSection" target="ru.javawebinar.basejava.model.AbstractSection">
+      <point x="63.75" y="-25.5" />
+      <point x="191.25" y="257.0" />
+      <point x="368.25" y="257.0" />
+      <point x="-51.25" y="25.5" />
+    </edge>
+    <edge source="ru.javawebinar.basejava.model.Resume" target="ru.javawebinar.basejava.model.ContactType">
+      <point x="-23.583333333333258" y="-58.5" />
+      <point x="716.9166666666667" y="277.0" />
+      <point x="699.3541666666667" y="277.0" />
+      <point x="-33.0" y="113.5" />
     </edge>
     <edge source="ru.javawebinar.basejava.model.OrganizationSection" target="ru.javawebinar.basejava.model.OrganizationSection.OrganizationSectionEntry">
-      <point x="-15.9375" y="-25.5" />
-      <point x="447.06250000000006" y="722.0" />
-      <point x="423.9845238095238" y="722.0" />
-      <point x="-88.5" y="69.5" />
+      <point x="95.625" y="25.5" />
+      <point x="223.125" y="439.0" />
+      <point x="216.0" y="439.0" />
+      <point x="88.5" y="-80.5" />
     </edge>
-    <edge source="ru.javawebinar.basejava.model.Organization" target="ru.javawebinar.basejava.model.ContactType">
-      <point x="-52.875" y="-36.5" />
-      <point x="455.27812500000005" y="380.0" />
-      <point x="468.65312500000005" y="380.0" />
-      <point x="468.65312500000005" y="247.0" />
-      <point x="529.1031250000001" y="247.0" />
-      <point x="-52.799999999999955" y="113.5" />
-    </edge>
-    <edge source="ru.javawebinar.basejava.model.Resume" target="ru.javawebinar.basejava.model.OrganizationSection">
-      <point x="10.291666666666686" y="-58.5" />
-      <point x="364.03229166666665" y="813.0" />
-      <point x="399.25000000000006" y="813.0" />
-      <point x="-63.75" y="25.5" />
-    </edge>
-    <edge source="ru.javawebinar.basejava.model.Resume" target="ru.javawebinar.basejava.model.TextSection">
-      <point x="-51.45833333333326" y="-58.5" />
-      <point x="302.2822916666667" y="833.0" />
-      <point x="215.50000000000006" y="833.0" />
-      <point x="-33.0" y="25.5" />
-    </edge>
-    <edge source="ru.javawebinar.basejava.model.Resume" target="ru.javawebinar.basejava.model.ListSection">
-      <point x="-92.62499999999989" y="-58.5" />
-      <point x="261.1156250000001" y="853.0" />
-      <point x="48.5" y="853.0" />
-      <point x="-38.0" y="25.5" />
-    </edge>
-    <edge source="ru.javawebinar.basejava.model.ListSection" target="ru.javawebinar.basejava.model.Section">
-      <point x="-38.0" y="-25.5" />
-      <point x="48.5" y="702.0" />
-      <point x="219.1720238095238" y="702.0" />
-      <point x="-31.25" y="25.5" />
-    </edge>
-    <edge source="ru.javawebinar.basejava.model.OrganizationSection" target="ru.javawebinar.basejava.model.Section">
-      <point x="-111.5625" y="-25.5" />
-      <point x="351.43750000000006" y="702.0" />
-      <point x="281.6720238095238" y="702.0" />
-      <point x="31.25" y="25.5" />
+    <edge source="ru.javawebinar.basejava.model.Resume" target="ru.javawebinar.basejava.model.AbstractSection">
+      <point x="-70.75" y="-58.5" />
+      <point x="669.75" y="247.0" />
+      <point x="491.25" y="247.0" />
+      <point x="71.75" y="25.5" />
     </edge>
   </edges>
-  <settings layout="Hierarchic Group" zoom="0.9076549210206561" x="325.0" y="520.9966532797858" />
+  <settings layout="Hierarchic Group" zoom="1.0" x="462.0" y="312.5" />
   <SelectedNodes />
   <Categories>
     <Category>Fields</Category>

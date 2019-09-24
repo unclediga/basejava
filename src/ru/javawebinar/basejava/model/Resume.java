@@ -2,6 +2,7 @@ package ru.javawebinar.basejava.model;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -13,8 +14,8 @@ public class Resume implements Comparable<Resume> {
     private final String uuid;
     private final String fullName;
 
-    private final Map<ContactType, Contact> contacts = new EnumMap(ContactType.class);
-    private final Map<SectionType, Section> sections = new EnumMap(SectionType.class);
+    private final Map<ContactType, String> contacts = new EnumMap<>(ContactType.class);
+    private final Map<SectionType, AbstractSection> sections = new EnumMap<>(SectionType.class);
 
     public Resume(String fullName) {
         this(UUID.randomUUID().toString(), fullName);
@@ -33,97 +34,44 @@ public class Resume implements Comparable<Resume> {
         return fullName;
     }
 
-    public Map<ContactType, Contact> getContacts() {
+    public Map<ContactType, String> getContacts() {
         return contacts;
     }
 
-    public Contact getContact(ContactType contactType) {
+    public String getContact(ContactType contactType) {
         return contacts.get(contactType);
     }
 
-    public void setContact(Contact contact) {
-        contacts.put(contact.getType(), contact);
+    public void setContact(ContactType contactType, String contact) {
+        contacts.put(contactType, contact);
     }
 
-    public Map<SectionType, Section> getSections() {
+    public Map<SectionType, AbstractSection> getSections() {
         return sections;
     }
 
-    public Section getSection(SectionType sectionType) {
+    public AbstractSection getSection(SectionType sectionType) {
         return sections.get(sectionType);
     }
 
-    public void setSection(SectionType sectionType, Section section) {
+    public void setSection(SectionType sectionType, AbstractSection section) {
         sections.put(sectionType, section);
-    }
-
-    private Section getExistOrCreateSection(SectionType sectionType) {
-        Section section = getSection(sectionType);
-        if (section == null) {
-            switch (sectionType) {
-                case PERSONAL:
-                case OBJECTIVE:
-                    section = new TextSection(sectionType.getTitle());
-                    break;
-                case ACHIEVEMENT:
-                case QUALIFICATIONS:
-                    section = new ListSection(sectionType.getTitle());
-                    break;
-                case EXPERIENCE:
-                case EDUCATION:
-                    section = new OrganizationSection(sectionType.getTitle());
-                    break;
-            }
-            setSection(sectionType, section);
-        }
-        return section;
-    }
-
-    public void addAchievement(String content) {
-        ListSection section = (ListSection) getExistOrCreateSection(SectionType.ACHIEVEMENT);
-        section.addSubsection(content);
-    }
-
-    public void addObjective(String content) {
-        TextSection section = (TextSection) getExistOrCreateSection(SectionType.OBJECTIVE);
-        section.setContent(content);
-    }
-
-    public void addPersonal(String content) {
-        TextSection section = (TextSection) getExistOrCreateSection(SectionType.PERSONAL);
-        section.setContent(content);
-    }
-
-    public void addQualification(String content) {
-        ListSection section = (ListSection) getExistOrCreateSection(SectionType.QUALIFICATIONS);
-        section.addSubsection(content);
-    }
-
-    public void addEducation(String organizationTitle, String organizationLink,
-                             int monthFrom, int yearFrom, int monthTo, int yearTo, String workTitle) {
-        OrganizationSection section = (OrganizationSection) getExistOrCreateSection(SectionType.EDUCATION);
-        section.addSubsection(organizationTitle, organizationLink, yearFrom, monthFrom, yearTo, monthTo, workTitle, null);
-    }
-
-    public void addExperience(String organizationTitle, String organizationLink,
-                              int monthFrom, int yearFrom, int monthTo, int yearTo, String workTitle, String content) {
-        OrganizationSection section = (OrganizationSection) getExistOrCreateSection(SectionType.EXPERIENCE);
-        section.addSubsection(organizationTitle, organizationLink, yearFrom, monthFrom, yearTo, monthTo, workTitle, content);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Resume resume = (Resume) o;
-
-        return uuid.equals(resume.uuid);
+        return uuid.equals(resume.uuid) &&
+                fullName.equals(resume.fullName) &&
+                contacts.equals(resume.contacts) &&
+                sections.equals(resume.sections);
     }
 
     @Override
     public int hashCode() {
-        return 31 * uuid.hashCode() + (fullName == null ? 0 : fullName.hashCode());
+        return Objects.hash(uuid, fullName, contacts, sections);
     }
 
     @Override
