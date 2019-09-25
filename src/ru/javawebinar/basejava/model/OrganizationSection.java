@@ -6,54 +6,53 @@ import java.util.List;
 import java.util.Objects;
 
 public class OrganizationSection extends AbstractSection {
-    private List<OrganizationSectionEntry> content = new ArrayList<>();
+    private List<Organization> content = new ArrayList<>();
 
     public OrganizationSection(String title) {
         setTitle(title);
     }
 
-    public class OrganizationSectionEntry {
-        private String organizationTitle;
-        private String organizationLink;
+    public class Organization {
+        private String title;
+        private String link;
         private YearMonth dateFrom;
         private YearMonth dateTo;
-        private String title;
-        private String content;
+        private TextSection content;
 
-        public OrganizationSectionEntry(String organizationTitle, String organizationLink, int yearFrom, int monthFrom, int yearTo, int monthTo, String title, String content) {
-            this.organizationTitle = organizationTitle;
-            this.organizationLink = organizationLink;
+        public Organization(String organizationTitle, String link, int yearFrom, int monthFrom, int yearTo, int monthTo, String title, String content) {
+            this.title = organizationTitle;
+            this.link = link;
             this.dateFrom = YearMonth.of(yearFrom, monthFrom);
             this.dateTo = YearMonth.of(yearTo, monthTo);
-            this.title = title;
-            this.content = content;
+            TextSection textSection = new TextSection(title);
+            textSection.setContent(content);
+            this.content = textSection;
+
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            OrganizationSectionEntry entry = (OrganizationSectionEntry) o;
-            return Objects.equals(organizationTitle, entry.organizationTitle) &&
-                    Objects.equals(organizationLink, entry.organizationLink) &&
+            Organization entry = (Organization) o;
+            return Objects.equals(title, entry.title) &&
+                    Objects.equals(link, entry.link) &&
                     Objects.equals(dateFrom, entry.dateFrom) &&
                     Objects.equals(dateTo, entry.dateTo) &&
-                    Objects.equals(title, entry.title) &&
                     Objects.equals(content, entry.content);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(organizationTitle, organizationLink, dateFrom, dateTo, title, content);
+            return Objects.hash(title, link, dateFrom, dateTo, content);
         }
 
         @Override
         public String toString() {
             return "OrganizationSectionEntry{" +
-                    "organization=" + organizationTitle + "(" + organizationLink + ")" +
+                    "organization=" + title + "(" + link + ")" +
                     ", dateFrom='" + dateFrom + '\'' +
                     ", dateTo='" + dateTo + '\'' +
-                    ", title='" + title + '\'' +
                     ", content='" + content + '\'' +
                     '}';
         }
@@ -61,7 +60,7 @@ public class OrganizationSection extends AbstractSection {
 
     public void addSubsection(String organizationTitle, String organizationLink,
                               int yearFrom, int monthFrom, int yearTo, int monthTo, String workTitle, String subsection) {
-        OrganizationSectionEntry entry = new OrganizationSectionEntry(organizationTitle, organizationLink,
+        Organization entry = new Organization(organizationTitle, organizationLink,
                 yearFrom, monthFrom, yearTo, monthTo, workTitle, subsection);
         content.add(entry);
     }
