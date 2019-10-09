@@ -5,13 +5,10 @@ import ru.javawebinar.basejava.model.Resume;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * gkislin
- * 22.07.2016
- */
 public abstract class AbstractFileStorage extends AbstractStorage<File> {
     private File directory;
 
@@ -28,24 +25,28 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
 
     @Override
     public void clear() {
-
+        String[] files = directory.list();
+        for (int i = 0; i < files.length; i++) {
+            new File(files[i]).delete();
+        }
     }
 
     @Override
     public int size() {
-        return 0;
+        String[] list = directory.list();
+        return list != null ? list.length : 0;
     }
 
     @Override
     protected void deleteElement(File searchKey) {
-
+        searchKey.delete();
     }
 
     @Override
     protected void insertElement(Resume resume, File searchKey) {
         try {
             searchKey.createNewFile();
-            doWrite(resume, searchKey);
+            writeFile(resume, searchKey);
         } catch (IOException e) {
             throw new StorageException("IO error", searchKey.getName(), e);
         }
@@ -58,12 +59,20 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
 
     @Override
     protected Resume getElement(File searchKey) {
-        return null;
+        try {
+            return readFile(searchKey);
+        } catch (IOException e) {
+            throw new StorageException("IO error", searchKey.getName(), e);
+        }
     }
 
     @Override
     protected void updateElement(Resume resume, File searchKey) {
-
+        try {
+            writeFile(resume, searchKey);
+        } catch (IOException e) {
+            throw new StorageException("IO error", searchKey.getName(), e);
+        }
     }
 
     @Override
@@ -73,8 +82,19 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
 
     @Override
     protected List<Resume> getListElements() {
-        return null;
+        List<Resume> list = new ArrayList<>();
+        String[] files = directory.list();
+        for (int i = 0; i < files.length; i++) {
+            try {
+                list.add(getElement(new File(directory.getCanonicalPath() + File.separator + files[i])));
+            } catch (IOException e) {
+                throw new StorageException("IO error", files[i], e);
+            }
+        }
+        return list;
     }
 
-    protected abstract void doWrite(Resume resume, File file) throws IOException;
+    protected abstract Resume readFile(File file) throws IOException;
+
+    protected abstract void writeFile(Resume resume, File file) throws IOException;
 }
