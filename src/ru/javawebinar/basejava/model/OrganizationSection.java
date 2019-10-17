@@ -12,20 +12,20 @@ public class OrganizationSection extends AbstractSection {
         setTitle(title);
     }
 
-    public class Organization {
-        private OrganizationInfo link;
+    // Organization ////////////////////////////////////////////////////////////
+    public static class Organization {
+        private Link link;
         private YearMonth dateFrom;
         private YearMonth dateTo;
         private TextSection content;
 
         public Organization(String organizationTitle, String link, int yearFrom, int monthFrom, int yearTo, int monthTo, String title, String content) {
-            this.link = new OrganizationInfo(organizationTitle, link);
+            this.link = new Link(organizationTitle, link);
             this.dateFrom = YearMonth.of(yearFrom, monthFrom);
             this.dateTo = YearMonth.of(yearTo, monthTo);
             TextSection textSection = new TextSection(title);
             textSection.setContent(content);
             this.content = textSection;
-
         }
 
         @Override
@@ -51,6 +51,40 @@ public class OrganizationSection extends AbstractSection {
                     ", dateFrom='" + dateFrom + '\'' +
                     ", dateTo='" + dateTo + '\'' +
                     ", content='" + content + '\'' +
+                    '}';
+        }
+    }
+
+    // Link //////////////////////////////////////////////////////////////
+    public static class Link {
+        private String title;
+        private String homePage;
+
+        public Link(String title, String homePage) {
+            Objects.requireNonNull(title, "title must not be null");
+            this.title = title;
+            this.homePage = homePage;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Link that = (Link) o;
+            return title.equals(that.title) &&
+                    Objects.equals(homePage, that.homePage);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(title, homePage);
+        }
+
+        @Override
+        public String toString() {
+            return "OrganizationLink{" +
+                    "title='" + title + '\'' +
+                    ", link='" + homePage + '\'' +
                     '}';
         }
     }

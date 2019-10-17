@@ -26,8 +26,9 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
     @Override
     public void clear() {
         String[] files = directory.list();
-        for (int i = 0; i < files.length; i++) {
-            new File(files[i]).delete();
+        if (files == null) return;
+        for (String file : files) {
+            new File(file).delete();
         }
     }
 
@@ -84,11 +85,12 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
     protected List<Resume> getListElements() {
         List<Resume> list = new ArrayList<>();
         String[] files = directory.list();
-        for (int i = 0; i < files.length; i++) {
+        if (files == null) return list;
+        for (String file : files) {
             try {
-                list.add(getElement(new File(directory.getCanonicalPath() + File.separator + files[i])));
+                list.add(getElement(new File(directory.getCanonicalPath() + File.separator + file)));
             } catch (IOException e) {
-                throw new StorageException("IO error", files[i], e);
+                throw new StorageException("IO error", file, e);
             }
         }
         return list;
