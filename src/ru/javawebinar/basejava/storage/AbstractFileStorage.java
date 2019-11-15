@@ -25,32 +25,37 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
 
     @Override
     public void clear() {
-        String[] files = directory.list();
+        File[] files = directory.listFiles();
         if (files == null) return;
-        for (String file : files) {
-            new File(file).delete();
+        for (File file : files) {
+            deleteElement(file);
         }
     }
 
     @Override
     public int size() {
         String[] list = directory.list();
-        return list != null ? list.length : 0;
+        if (list == null) {
+            throw new StorageException("Directory read error", null);
+        }
+        return list.length;
     }
 
     @Override
     protected void deleteElement(File searchKey) {
-        searchKey.delete();
+        if (!searchKey.delete()) {
+            throw new StorageException("File delete error", searchKey.getName());
+        }
     }
 
     @Override
     protected void insertElement(Resume resume, File searchKey) {
         try {
             searchKey.createNewFile();
-            writeFile(resume, searchKey);
         } catch (IOException e) {
-            throw new StorageException("IO error", searchKey.getName(), e);
+            throw new StorageException("Couldn't create file " + searchKey.getAbsolutePath(), searchKey.getName(), e);
         }
+        updateElement(resume, searchKey);
     }
 
     @Override
@@ -63,7 +68,7 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
         try {
             return readFile(searchKey);
         } catch (IOException e) {
-            throw new StorageException("IO error", searchKey.getName(), e);
+            throw new StorageException("File read error", searchKey.getName(), e);
         }
     }
 
@@ -72,7 +77,7 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
         try {
             writeFile(resume, searchKey);
         } catch (IOException e) {
-            throw new StorageException("IO error", searchKey.getName(), e);
+            throw new StorageException("File write error", searchKey.getName(), e);
         }
     }
 
@@ -84,14 +89,10 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
     @Override
     protected List<Resume> getListElements() {
         List<Resume> list = new ArrayList<>();
-        String[] files = directory.list();
+        File[] files = directory.listFiles();
         if (files == null) return list;
-        for (String file : files) {
-            try {
-                list.add(getElement(new File(directory.getCanonicalPath() + File.separator + file)));
-            } catch (IOException e) {
-                throw new StorageException("IO error", file, e);
-            }
+        for (File file : files) {
+            list.add(getElement(file));
         }
         return list;
     }

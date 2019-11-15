@@ -1,9 +1,15 @@
 package ru.javawebinar.basejava.model;
 
-import java.time.YearMonth;
+import ru.javawebinar.basejava.util.DateUtil;
+
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import static ru.javawebinar.basejava.util.DateUtil.NOW;
 
 public class OrganizationSection extends AbstractSection {
     private List<Organization> content = new ArrayList<>();
@@ -12,45 +18,47 @@ public class OrganizationSection extends AbstractSection {
         setTitle(title);
     }
 
+    public OrganizationSection(String title, Organization... organizations) {
+        setTitle(title);
+        for (Organization organization : organizations) {
+            content.add(organization);
+        }
+    }
+
     // Organization ////////////////////////////////////////////////////////////
     public static class Organization {
         private Link link;
-        private YearMonth dateFrom;
-        private YearMonth dateTo;
-        private TextSection content;
+        private List<Position> positions = new ArrayList<>();
 
-        public Organization(String organizationTitle, String link, int yearFrom, int monthFrom, int yearTo, int monthTo, String title, String content) {
+        public Organization(String organizationTitle, String link, Position... positions) {
             this.link = new Link(organizationTitle, link);
-            this.dateFrom = YearMonth.of(yearFrom, monthFrom);
-            this.dateTo = YearMonth.of(yearTo, monthTo);
-            TextSection textSection = new TextSection(title);
-            textSection.setContent(content);
-            this.content = textSection;
+            this.positions = Arrays.asList(positions);
+        }
+
+        public Organization(String organizationTitle, String link, List<Position> positions) {
+            this.link = new Link(organizationTitle, link);
+            this.positions = positions;
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Organization entry = (Organization) o;
-            return Objects.equals(link, entry.link) &&
-                    Objects.equals(dateFrom, entry.dateFrom) &&
-                    Objects.equals(dateTo, entry.dateTo) &&
-                    Objects.equals(content, entry.content);
+            if (!(o instanceof Organization)) return false;
+            Organization that = (Organization) o;
+            return link.equals(that.link) &&
+                    positions.equals(that.positions);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(link, dateFrom, dateTo, content);
+            return Objects.hash(link, positions);
         }
 
         @Override
         public String toString() {
-            return "OrganizationSectionEntry{" +
-                    "organization=" + link +
-                    ", dateFrom='" + dateFrom + '\'' +
-                    ", dateTo='" + dateTo + '\'' +
-                    ", content='" + content + '\'' +
+            return "Organization{" +
+                    "link=" + link +
+                    ", positions=" + positions +
                     '}';
         }
     }
@@ -90,9 +98,16 @@ public class OrganizationSection extends AbstractSection {
     }
 
     public void addSubsection(String organizationTitle, String organizationLink,
-                              int yearFrom, int monthFrom, int yearTo, int monthTo, String workTitle, String subsection) {
+                              int yearFrom, Month monthFrom, String workTitle, String subsection) {
         Organization entry = new Organization(organizationTitle, organizationLink,
-                yearFrom, monthFrom, yearTo, monthTo, workTitle, subsection);
+                new Position(yearFrom, monthFrom, workTitle, subsection));
+        content.add(entry);
+    }
+
+    public void addSubsection(String organizationTitle, String organizationLink,
+                              int yearFrom, Month monthFrom, int yearTo, Month monthTo, String workTitle, String subsection) {
+        Organization entry = new Organization(organizationTitle, organizationLink,
+                new Position(yearFrom, monthFrom, yearTo, monthTo, workTitle, subsection));
         content.add(entry);
     }
 
@@ -115,5 +130,79 @@ public class OrganizationSection extends AbstractSection {
                 "title='" + getTitle() + '\'' +
                 ", content=" + content +
                 '}';
+    }
+
+    // Position ////////////////////////////////////////////////////////////
+    public static class Position {
+        private LocalDate dateFrom;
+        private LocalDate dateTo;
+        private TextSection content;
+
+        public Position(int yearFrom, Month monthFrom, String workTitle, String subsection) {
+            this(DateUtil.of(yearFrom, monthFrom), NOW, workTitle, subsection);
+        }
+
+        public Position(int yearFrom, Month monthFrom, int yearTo, Month monthTo, String workTitle, String subsection) {
+            this(DateUtil.of(yearFrom, monthFrom), DateUtil.of(yearTo, monthTo), workTitle, subsection);
+        }
+
+        public Position(LocalDate dateFrom, LocalDate dateTo, String title, String content) {
+            Objects.requireNonNull(dateFrom, "dateFrom must be not null!");
+            Objects.requireNonNull(dateTo, "dateTo must be not null!");
+            Objects.requireNonNull(title, "title must be not null!");
+            this.dateFrom = dateFrom;
+            this.dateTo = dateTo;
+            TextSection textSection = new TextSection(title);
+            textSection.setContent(content);
+            this.content = textSection;
+        }
+
+        public LocalDate getDateFrom() {
+            return dateFrom;
+        }
+
+        public void setDateFrom(LocalDate dateFrom) {
+            this.dateFrom = dateFrom;
+        }
+
+        public LocalDate getDateTo() {
+            return dateTo;
+        }
+
+        public void setDateTo(LocalDate dateTo) {
+            this.dateTo = dateTo;
+        }
+
+        public TextSection getContent() {
+            return content;
+        }
+
+        public void setContent(TextSection content) {
+            this.content = content;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Position)) return false;
+            Position position = (Position) o;
+            return dateFrom.equals(position.dateFrom) &&
+                    dateTo.equals(position.dateTo) &&
+                    content.equals(position.content);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(dateFrom, dateTo, content);
+        }
+
+        @Override
+        public String toString() {
+            return "Position{" +
+                    "dateFrom=" + dateFrom +
+                    ", dateTo=" + dateTo +
+                    ", content=" + content +
+                    '}';
+        }
     }
 }
