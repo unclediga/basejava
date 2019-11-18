@@ -19,11 +19,7 @@ public abstract class AbstractPathStorage extends AbstractStorage<Path> {
 
     protected AbstractPathStorage(File dir) {
         Objects.requireNonNull(dir, "directory must not be null");
-        try {
-            directory = Paths.get(dir.getCanonicalPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        directory = Paths.get(dir.getName());
         if (!Files.isDirectory(directory)) {
             throw new IllegalArgumentException(directory.toAbsolutePath() + " is not directory");
         }
@@ -71,7 +67,7 @@ public abstract class AbstractPathStorage extends AbstractStorage<Path> {
 
     @Override
     protected Path getSearchKey(String uuid) {
-        return Paths.get(uuid).resolve(directory);
+        return directory.resolve(uuid);
     }
 
     @Override
