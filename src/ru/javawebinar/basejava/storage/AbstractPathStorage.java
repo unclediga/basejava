@@ -3,6 +3,7 @@ package ru.javawebinar.basejava.storage;
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,9 +17,13 @@ import java.util.Objects;
 public abstract class AbstractPathStorage extends AbstractStorage<Path> {
     private Path directory;
 
-    protected AbstractPathStorage(String dir) {
+    protected AbstractPathStorage(File dir) {
         Objects.requireNonNull(dir, "directory must not be null");
-        directory = Paths.get(dir);
+        try {
+            directory = Paths.get(dir.getCanonicalPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (!Files.isDirectory(directory)) {
             throw new IllegalArgumentException(directory.toAbsolutePath() + " is not directory");
         }
