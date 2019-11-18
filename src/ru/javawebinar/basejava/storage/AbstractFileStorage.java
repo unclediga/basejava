@@ -3,8 +3,7 @@ package ru.javawebinar.basejava.storage;
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -66,7 +65,7 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
     @Override
     protected Resume getElement(File searchKey) {
         try {
-            return readFile(searchKey);
+            return readFile(new FileInputStream(searchKey));
         } catch (IOException e) {
             throw new StorageException("File read error", searchKey.getName(), e);
         }
@@ -75,7 +74,7 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
     @Override
     protected void updateElement(Resume resume, File searchKey) {
         try {
-            writeFile(resume, searchKey);
+            writeFile(resume, new FileOutputStream(searchKey));
         } catch (IOException e) {
             throw new StorageException("File write error", searchKey.getName(), e);
         }
@@ -97,7 +96,7 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
         return list;
     }
 
-    protected abstract Resume readFile(File file) throws IOException;
+    protected abstract Resume readFile(InputStream stream) throws IOException;
 
-    protected abstract void writeFile(Resume resume, File file) throws IOException;
+    protected abstract void writeFile(Resume resume, OutputStream stream) throws IOException;
 }

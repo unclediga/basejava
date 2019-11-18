@@ -2,6 +2,7 @@ package ru.javawebinar.basejava.model;
 
 import ru.javawebinar.basejava.util.DateUtil;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.Objects;
 import static ru.javawebinar.basejava.util.DateUtil.NOW;
 
 public class OrganizationSection extends AbstractSection {
+    private static final long serialVersionUID = 1L;
     private List<Organization> content = new ArrayList<>();
 
     public OrganizationSection(String title) {
@@ -26,7 +28,8 @@ public class OrganizationSection extends AbstractSection {
     }
 
     // Organization ////////////////////////////////////////////////////////////
-    public static class Organization {
+    public static class Organization implements Serializable {
+        private static final long serialVersionUID = 1L;
         private Link link;
         private List<Position> positions = new ArrayList<>();
 
@@ -64,7 +67,8 @@ public class OrganizationSection extends AbstractSection {
     }
 
     // Link //////////////////////////////////////////////////////////////
-    public static class Link {
+    public static class Link implements Serializable {
+        private static final long serialVersionUID = 1L;
         private String title;
         private String homePage;
 
@@ -133,7 +137,8 @@ public class OrganizationSection extends AbstractSection {
     }
 
     // Position ////////////////////////////////////////////////////////////
-    public static class Position {
+    public static class Position implements Serializable {
+        private static final long serialVersionUID = 1L;
         private LocalDate dateFrom;
         private LocalDate dateTo;
         private TextSection content;
