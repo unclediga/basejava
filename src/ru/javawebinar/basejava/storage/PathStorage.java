@@ -2,6 +2,7 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
+import ru.javawebinar.basejava.storage.serialize.SerializeStrategy;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,10 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class AbstractPathStorage extends AbstractStorage<Path> {
+public class PathStorage extends AbstractStorage<Path> {
+    protected SerializeStrategy strategy;
     private Path directory;
 
-    protected AbstractPathStorage(String dir) {
+    protected PathStorage(String dir, SerializeStrategy strategy) {
         Objects.requireNonNull(dir, "directory must not be null");
         directory = Paths.get(dir);
         if (!Files.isDirectory(directory)) {
@@ -25,6 +27,7 @@ public abstract class AbstractPathStorage extends AbstractStorage<Path> {
         if (!Files.isReadable(directory) || !Files.isWritable(directory)) {
             throw new IllegalArgumentException(directory.toAbsolutePath() + " is not readable/writable");
         }
+        this.strategy = strategy;
     }
 
     @Override
@@ -103,7 +106,11 @@ public abstract class AbstractPathStorage extends AbstractStorage<Path> {
         return list;
     }
 
-    protected abstract Resume readFile(InputStream stream) throws IOException;
+    protected Resume readFile(InputStream stream) throws IOException {
+        return strategy.read(stream);
+    }
 
-    protected abstract void writeFile(Resume resume, OutputStream stream) throws IOException;
+    protected void writeFile(Resume resume, OutputStream stream) throws IOException {
+        strategy.write(resume, stream);
+    }
 }
