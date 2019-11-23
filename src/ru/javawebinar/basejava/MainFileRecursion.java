@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class MainFileRecursion {
     public static void main(String[] args) throws IOException {
-        showSubDirs(new File(".\\src"), 0);
+        showSubDirs(new File("src"), 0);
     }
 
     private static void showSubDirs(File file, int i) throws IOException {

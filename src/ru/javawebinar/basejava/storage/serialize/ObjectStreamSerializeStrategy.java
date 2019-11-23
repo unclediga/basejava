@@ -1,17 +1,13 @@
-package ru.javawebinar.basejava.storage;
+package ru.javawebinar.basejava.storage.serialize;
 
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
 
 import java.io.*;
 
-public class ObjectStreamStorage extends AbstractFileStorage {
-    protected ObjectStreamStorage(File directory) {
-        super(directory);
-    }
-
+public class ObjectStreamSerializeStrategy implements SerializeStrategy {
     @Override
-    protected Resume readFile(InputStream stream) throws IOException {
+    public Resume read(InputStream stream) throws IOException {
         try (ObjectInputStream oistream = new ObjectInputStream(stream)) {
             return (Resume) oistream.readObject();
         } catch (ClassNotFoundException e) {
@@ -20,7 +16,7 @@ public class ObjectStreamStorage extends AbstractFileStorage {
     }
 
     @Override
-    protected void writeFile(Resume resume, OutputStream stream) throws IOException {
+    public void write(Resume resume, OutputStream stream) throws IOException {
         try (ObjectOutputStream ostream = new ObjectOutputStream(stream)) {
             ostream.writeObject(resume);
         }
