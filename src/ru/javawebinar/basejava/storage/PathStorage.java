@@ -5,14 +5,13 @@ import ru.javawebinar.basejava.model.Resume;
 import ru.javawebinar.basejava.storage.serialize.SerializeStrategy;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PathStorage extends AbstractStorage<Path> {
     protected SerializeStrategy strategy;
@@ -32,20 +31,12 @@ public class PathStorage extends AbstractStorage<Path> {
 
     @Override
     public void clear() {
-        try {
-            Files.list(directory).forEach(this::deleteElement);
-        } catch (IOException e) {
-            throw new StorageException("Error delete " + directory.toAbsolutePath(), null, e);
-        }
+        getFilesList().forEach(this::deleteElement);
     }
 
     @Override
     public int size() {
-        try {
-            return Math.toIntExact(Files.list(directory).count());
-        } catch (IOException e) {
-            throw new StorageException("Directory read error " + directory.toAbsolutePath(), null, e);
-        }
+        return Math.toIntExact(getFilesList().count());
     }
 
     @Override
@@ -53,7 +44,7 @@ public class PathStorage extends AbstractStorage<Path> {
         try {
             Files.delete(searchKey);
         } catch (IOException e) {
-            throw new StorageException("File delete error" + searchKey.toAbsolutePath(), null, e);
+            throw new StorageException("File delete error" + searchKey.toAbsolutePath(), e);
         }
     }
 
@@ -75,42 +66,36 @@ public class PathStorage extends AbstractStorage<Path> {
     @Override
     protected Resume getElement(Path searchKey) {
         try {
-            return readFile(Files.newInputStream(searchKey));
+            return strategy.read(Files.newInputStream(searchKey));
         } catch (IOException e) {
-            throw new StorageException("File read error " + searchKey.toAbsolutePath(), null, e);
+            throw new StorageException("File read error " + searchKey.toAbsolutePath(), e);
         }
     }
 
     @Override
     protected void updateElement(Resume resume, Path searchKey) {
         try {
-            writeFile(resume, Files.newOutputStream(searchKey));
+            strategy.write(resume, Files.newOutputStream(searchKey));
         } catch (IOException e) {
-            throw new StorageException("File write error " + searchKey.toAbsolutePath(), null, e);
+            throw new StorageException("File write error " + searchKey.toAbsolutePath(), e);
         }
     }
 
     @Override
     protected boolean isKeyExists(Path searchKey) {
-        return Files.exists(searchKey);
+        return Files.isRegularFile(searchKey);
     }
 
     @Override
     protected List<Resume> getListElements() {
-        List<Resume> list = new ArrayList<>();
+        return getFilesList().map(this::getElement).collect(Collectors.toList());
+    }
+
+    private Stream<Path> getFilesList() {
         try {
-            Files.list(directory).forEach(f -> list.add(getElement(f)));
+            return Files.list(directory);
         } catch (IOException e) {
-            throw new StorageException("Directory read error " + directory.toAbsolutePath(), null, e);
+            throw new StorageException("Directory read error", e);
         }
-        return list;
-    }
-
-    protected Resume readFile(InputStream stream) throws IOException {
-        return strategy.read(stream);
-    }
-
-    protected void writeFile(Resume resume, OutputStream stream) throws IOException {
-        strategy.write(resume, stream);
     }
 }

@@ -11,9 +11,9 @@ import java.util.Objects;
 
 public class FileStorage extends AbstractStorage<File> {
     private File directory;
-    protected SerializeStrategy strategy;
+    private SerializeStrategy strategy;
 
-    protected FileStorage(File directory, SerializeStrategy strategy) {
+    FileStorage(File directory, SerializeStrategy strategy) {
         Objects.requireNonNull(directory, "directory must not be null");
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException(directory.getAbsolutePath() + " is not directory");
@@ -38,7 +38,7 @@ public class FileStorage extends AbstractStorage<File> {
     public int size() {
         String[] list = directory.list();
         if (list == null) {
-            throw new StorageException("Directory read error", null);
+            throw new StorageException("Directory read error");
         }
         return list.length;
     }
@@ -68,7 +68,7 @@ public class FileStorage extends AbstractStorage<File> {
     @Override
     protected Resume getElement(File searchKey) {
         try {
-            return readFile(new FileInputStream(searchKey));
+            return strategy.read(new FileInputStream(searchKey));
         } catch (IOException e) {
             throw new StorageException("File read error", searchKey.getName(), e);
         }
@@ -77,7 +77,7 @@ public class FileStorage extends AbstractStorage<File> {
     @Override
     protected void updateElement(Resume resume, File searchKey) {
         try {
-            writeFile(resume, new FileOutputStream(searchKey));
+            strategy.write(resume, new FileOutputStream(searchKey));
         } catch (IOException e) {
             throw new StorageException("File write error", searchKey.getName(), e);
         }
@@ -97,13 +97,5 @@ public class FileStorage extends AbstractStorage<File> {
             list.add(getElement(file));
         }
         return list;
-    }
-
-    protected Resume readFile(InputStream stream) throws IOException {
-        return strategy.read(stream);
-    }
-
-    protected void writeFile(Resume resume, OutputStream stream) throws IOException {
-        strategy.write(resume, stream);
     }
 }
