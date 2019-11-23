@@ -2,7 +2,7 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
-import ru.javawebinar.basejava.storage.serialize.SerializeStrategy;
+import ru.javawebinar.basejava.storage.serialize.StreamSerializer;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -11,9 +11,9 @@ import java.util.Objects;
 
 public class FileStorage extends AbstractStorage<File> {
     private File directory;
-    private SerializeStrategy strategy;
+    private StreamSerializer serializer;
 
-    FileStorage(File directory, SerializeStrategy strategy) {
+    FileStorage(File directory, StreamSerializer serializer) {
         Objects.requireNonNull(directory, "directory must not be null");
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException(directory.getAbsolutePath() + " is not directory");
@@ -22,7 +22,7 @@ public class FileStorage extends AbstractStorage<File> {
             throw new IllegalArgumentException(directory.getAbsolutePath() + " is not readable/writable");
         }
         this.directory = directory;
-        this.strategy = strategy;
+        this.serializer = serializer;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class FileStorage extends AbstractStorage<File> {
     @Override
     protected Resume getElement(File searchKey) {
         try {
-            return strategy.read(new FileInputStream(searchKey));
+            return serializer.read(new FileInputStream(searchKey));
         } catch (IOException e) {
             throw new StorageException("File read error", searchKey.getName(), e);
         }
@@ -77,7 +77,7 @@ public class FileStorage extends AbstractStorage<File> {
     @Override
     protected void updateElement(Resume resume, File searchKey) {
         try {
-            strategy.write(resume, new FileOutputStream(searchKey));
+            serializer.write(resume, new FileOutputStream(searchKey));
         } catch (IOException e) {
             throw new StorageException("File write error", searchKey.getName(), e);
         }

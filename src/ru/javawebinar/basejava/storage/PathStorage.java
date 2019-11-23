@@ -2,7 +2,7 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
-import ru.javawebinar.basejava.storage.serialize.SerializeStrategy;
+import ru.javawebinar.basejava.storage.serialize.StreamSerializer;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PathStorage extends AbstractStorage<Path> {
-    protected SerializeStrategy strategy;
+    protected StreamSerializer serializer;
     private Path directory;
 
-    protected PathStorage(String dir, SerializeStrategy strategy) {
+    protected PathStorage(String dir, StreamSerializer serializer) {
         Objects.requireNonNull(dir, "directory must not be null");
         directory = Paths.get(dir);
         if (!Files.isDirectory(directory)) {
@@ -26,7 +26,7 @@ public class PathStorage extends AbstractStorage<Path> {
         if (!Files.isReadable(directory) || !Files.isWritable(directory)) {
             throw new IllegalArgumentException(directory.toAbsolutePath() + " is not readable/writable");
         }
-        this.strategy = strategy;
+        this.serializer = serializer;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class PathStorage extends AbstractStorage<Path> {
     @Override
     protected Resume getElement(Path searchKey) {
         try {
-            return strategy.read(Files.newInputStream(searchKey));
+            return serializer.read(Files.newInputStream(searchKey));
         } catch (IOException e) {
             throw new StorageException("File read error " + searchKey.toAbsolutePath(), e);
         }
@@ -75,7 +75,7 @@ public class PathStorage extends AbstractStorage<Path> {
     @Override
     protected void updateElement(Resume resume, Path searchKey) {
         try {
-            strategy.write(resume, Files.newOutputStream(searchKey));
+            serializer.write(resume, Files.newOutputStream(searchKey));
         } catch (IOException e) {
             throw new StorageException("File write error " + searchKey.toAbsolutePath(), e);
         }
