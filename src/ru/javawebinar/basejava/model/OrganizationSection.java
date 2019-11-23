@@ -1,7 +1,11 @@
 package ru.javawebinar.basejava.model;
 
 import ru.javawebinar.basejava.util.DateUtil;
+import ru.javawebinar.basejava.util.LocalDateAdapter;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
@@ -12,9 +16,13 @@ import java.util.Objects;
 
 import static ru.javawebinar.basejava.util.DateUtil.NOW;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class OrganizationSection extends AbstractSection {
     private static final long serialVersionUID = 1L;
     private List<Organization> content = new ArrayList<>();
+
+    public OrganizationSection() {
+    }
 
     public OrganizationSection(String title) {
         setTitle(title);
@@ -28,10 +36,14 @@ public class OrganizationSection extends AbstractSection {
     }
 
     // Organization ////////////////////////////////////////////////////////////
+    @XmlAccessorType(XmlAccessType.FIELD)
     public static class Organization implements Serializable {
         private static final long serialVersionUID = 1L;
         private Link link;
         private List<Position> positions = new ArrayList<>();
+
+        public Organization() {
+        }
 
         public Organization(String organizationTitle, String link, Position... positions) {
             this.link = new Link(organizationTitle, link);
@@ -67,10 +79,14 @@ public class OrganizationSection extends AbstractSection {
     }
 
     // Link //////////////////////////////////////////////////////////////
+    @XmlAccessorType(XmlAccessType.FIELD)
     public static class Link implements Serializable {
         private static final long serialVersionUID = 1L;
         private String title;
         private String homePage;
+
+        public Link() {
+        }
 
         public Link(String title, String homePage) {
             Objects.requireNonNull(title, "title must not be null");
@@ -137,11 +153,17 @@ public class OrganizationSection extends AbstractSection {
     }
 
     // Position ////////////////////////////////////////////////////////////
+    @XmlAccessorType(XmlAccessType.FIELD)
     public static class Position implements Serializable {
         private static final long serialVersionUID = 1L;
+        @XmlJavaTypeAdapter(LocalDateAdapter.class)
         private LocalDate dateFrom;
+        @XmlJavaTypeAdapter(LocalDateAdapter.class)
         private LocalDate dateTo;
         private TextSection content;
+
+        public Position() {
+        }
 
         public Position(int yearFrom, Month monthFrom, String workTitle, String subsection) {
             this(DateUtil.of(yearFrom, monthFrom), NOW, workTitle, subsection);
