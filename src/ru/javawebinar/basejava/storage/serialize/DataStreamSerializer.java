@@ -44,16 +44,17 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
     private OrganizationSection readOrganizationSection(DataInputStream distream) throws IOException {
-        OrganizationSection section = new OrganizationSection(distream.readUTF());
+        OrganizationSection section = new OrganizationSection();
+        section.setTitle(distream.readUTF());
         List<OrganizationSection.Organization> organizations = new ArrayList<>();
         int sizeOrg = distream.readInt();
         for (int i = 0; i < sizeOrg; i++) {
             OrganizationSection.Organization organization = new OrganizationSection.Organization();
             OrganizationSection.Link link = new OrganizationSection.Link(distream.readUTF(), distream.readUTF());
             organization.setLink(link);
-            int sizePers = distream.readInt();
+            int sizePos = distream.readInt();
             List<OrganizationSection.Position> positions = new ArrayList<>();
-            for (int j = 0; j < sizePers; j++) {
+            for (int j = 0; j < sizePos; j++) {
                 OrganizationSection.Position position = new OrganizationSection.Position();
                 position.setDateFrom(LocalDate.parse(distream.readUTF()));
                 position.setDateTo(LocalDate.parse(distream.readUTF()));
