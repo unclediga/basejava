@@ -35,6 +35,14 @@ public class OrganizationSection extends AbstractSection {
         }
     }
 
+    public List<Organization> getContent() {
+        return content;
+    }
+
+    public void setContent(List<Organization> content) {
+        this.content = content;
+    }
+
     // Organization ////////////////////////////////////////////////////////////
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class Organization implements Serializable {
@@ -52,6 +60,22 @@ public class OrganizationSection extends AbstractSection {
 
         public Organization(String organizationTitle, String link, List<Position> positions) {
             this.link = new Link(organizationTitle, link);
+            this.positions = positions;
+        }
+
+        public Link getLink() {
+            return link;
+        }
+
+        public void setLink(Link link) {
+            this.link = link;
+        }
+
+        public List<Position> getPositions() {
+            return positions;
+        }
+
+        public void setPositions(List<Position> positions) {
             this.positions = positions;
         }
 
@@ -92,6 +116,14 @@ public class OrganizationSection extends AbstractSection {
             Objects.requireNonNull(title, "title must not be null");
             this.title = title;
             this.homePage = homePage;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getHomePage() {
+            return homePage;
         }
 
         @Override

@@ -5,17 +5,17 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
-import ru.javawebinar.basejava.model.*;
+import ru.javawebinar.basejava.model.ContactType;
+import ru.javawebinar.basejava.model.Resume;
 
 import java.io.File;
-import java.time.Month;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractStorageTest {
     protected Storage storage;
-    protected static final File STORAGE_DIR = new File("./storage");
+    protected static final File STORAGE_DIR = new File("storage");
 
     private static final String UUID_1 = "uuid1";
     private static final String UUID_2 = "uuid2";
