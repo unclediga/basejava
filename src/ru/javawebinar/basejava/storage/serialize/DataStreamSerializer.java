@@ -11,39 +11,38 @@ import java.util.Map;
 public class DataStreamSerializer implements StreamSerializer {
     @Override
     public Resume read(InputStream stream) throws IOException {
-        try (DataInputStream distream = new DataInputStream(stream)) {
+        try (MyDataInputStream distream = new MyDataInputStream(stream)) {
             String uuid = distream.readUTF();
             String fullName = distream.readUTF();
             Resume resume = new Resume(uuid, fullName);
             int size = distream.readInt();
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) { // count of contacts
                 resume.addContact(ContactType.valueOf(distream.readUTF()), distream.readUTF());
             }
-
-            while (distream.available() > 0) {
+            size = distream.readInt(); // count of sections
+            for (int i = 0; i < size; i++) {
                 SectionType sectionType = SectionType.valueOf(distream.readUTF());
-                resume.addSection(sectionType, readSection(distream, sectionType));
+                resume.addSection(sectionType, readSection(distream));
             }
             return resume;
         }
     }
 
-    private AbstractSection readSection(DataInputStream distream, SectionType sectionType) throws IOException {
-        switch (sectionType) {
-            case OBJECTIVE:
-            case PERSONAL:
-                return readTextSection(distream);
-            case ACHIEVEMENT:
-            case QUALIFICATIONS:
+    private AbstractSection readSection(MyDataInputStream distream) throws IOException {
+        SectionKind sectionKind = SectionKind.valueOf(distream.readUTF());
+        switch (sectionKind) {
+            case LIST:
                 return readListSection(distream);
-            case EXPERIENCE:
-            case EDUCATION:
+            case ORGANIZATION:
                 return readOrganizationSection(distream);
+            case TEXT:
+                return readTextSection(distream);
+            default:
+                throw new IllegalStateException("Undefined kind " + sectionKind);
         }
-        return null;
     }
 
-    private OrganizationSection readOrganizationSection(DataInputStream distream) throws IOException {
+    private OrganizationSection readOrganizationSection(MyDataInputStream distream) throws IOException {
         OrganizationSection section = new OrganizationSection();
         section.setTitle(distream.readUTF());
         List<OrganizationSection.Organization> organizations = new ArrayList<>();
@@ -58,7 +57,7 @@ public class DataStreamSerializer implements StreamSerializer {
                 OrganizationSection.Position position = new OrganizationSection.Position();
                 position.setDateFrom(LocalDate.parse(distream.readUTF()));
                 position.setDateTo(LocalDate.parse(distream.readUTF()));
-                position.setContent(readTextSection(distream));
+                position.setContent((TextSection) readSection(distream));
                 positions.add(position);
             }
             organization.setPositions(positions);
@@ -68,7 +67,7 @@ public class DataStreamSerializer implements StreamSerializer {
         return section;
     }
 
-    private ListSection readListSection(DataInputStream distream) throws IOException {
+    private ListSection readListSection(MyDataInputStream distream) throws IOException {
         ListSection section = new ListSection();
         section.setTitle(distream.readUTF());
         int size = distream.readInt();
@@ -78,7 +77,7 @@ public class DataStreamSerializer implements StreamSerializer {
         return section;
     }
 
-    private TextSection readTextSection(DataInputStream distream) throws IOException {
+    private TextSection readTextSection(MyDataInputStream distream) throws IOException {
         TextSection textSection = new TextSection(distream.readUTF());
         textSection.setContent(distream.readUTF());
         return textSection;
@@ -95,22 +94,25 @@ public class DataStreamSerializer implements StreamSerializer {
                 dostream.writeUTF(contact.getKey().name());
                 dostream.writeUTF(contact.getValue());
             }
-            writeSection(dostream, SectionType.OBJECTIVE, (TextSection) resume.getSection(SectionType.OBJECTIVE));
-            writeSection(dostream, SectionType.PERSONAL, (TextSection) resume.getSection(SectionType.PERSONAL));
-            writeSection(dostream, SectionType.ACHIEVEMENT, (ListSection) resume.getSection(SectionType.ACHIEVEMENT));
-            writeSection(dostream, SectionType.QUALIFICATIONS, (ListSection) resume.getSection(SectionType.QUALIFICATIONS));
-            writeSection(dostream, SectionType.EDUCATION, (OrganizationSection) resume.getSection(SectionType.EDUCATION));
-            writeSection(dostream, SectionType.EXPERIENCE, (OrganizationSection) resume.getSection(SectionType.EXPERIENCE));
+            Map<SectionType, AbstractSection> sections = resume.getSections();
+            dostream.writeInt(sections.size());
+            for (Map.Entry<SectionType, AbstractSection> sectionEntry : sections.entrySet()) {
+                SectionType sectionType = sectionEntry.getKey();
+                dostream.writeUTF(sectionType.name());
+                AbstractSection section = sectionEntry.getValue();
+                if (section instanceof OrganizationSection) {
+                    writeSection(dostream, (OrganizationSection) section); // SectionType.EDUCATION, SectionType.EXPERIENCE
+                } else if (section instanceof ListSection) {
+                    writeSection(dostream, (ListSection) section); // SectionType.ACHIEVEMENT, SectionType.QUALIFICATIONS
+                } else {
+                    writeSection(dostream, (TextSection) section); // SectionType.OBJECTIVE,SectionType.PERSONAL
+                }
+            }
         }
     }
 
-    private void writeSection(MyDataOutputStream dostream, SectionType sectionType, OrganizationSection section) throws IOException {
-        dostream.writeUTF(sectionType.name());
-        if (section == null) {
-            dostream.writeUTF("");
-            dostream.writeInt(0);
-            return;
-        }
+    private void writeSection(MyDataOutputStream dostream, OrganizationSection section) throws IOException {
+        dostream.writeUTF(SectionKind.ORGANIZATION.name());
         dostream.writeUTF(section.getTitle());
         List<OrganizationSection.Organization> organizations = section.getContent();
         dostream.writeInt(organizations.size());
@@ -123,18 +125,13 @@ public class DataStreamSerializer implements StreamSerializer {
             for (OrganizationSection.Position position : positions) {
                 dostream.writeUTF(position.getDateFrom().toString());
                 dostream.writeUTF(position.getDateTo().toString());
-                writeSection(dostream, null, position.getContent());
+                writeSection(dostream, position.getContent());
             }
         }
     }
 
-    private void writeSection(MyDataOutputStream dostream, SectionType sectionType, ListSection section) throws IOException {
-        dostream.writeUTF(sectionType.name());
-        if (section == null) {
-            dostream.writeUTF("");
-            dostream.writeInt(0);
-            return;
-        }
+    private void writeSection(MyDataOutputStream dostream, ListSection section) throws IOException {
+        dostream.writeUTF(SectionKind.LIST.name());
         dostream.writeUTF(section.getTitle());
         List<String> contents = section.getContent();
         dostream.writeInt(contents.size());
@@ -143,37 +140,58 @@ public class DataStreamSerializer implements StreamSerializer {
         }
     }
 
-    private void writeSection(MyDataOutputStream dostream, SectionType sectionType, TextSection section) throws IOException {
-        dostream.writeUTF(sectionType != null ? sectionType.name() : "INTERNAL");
-        if (section == null) {
-            dostream.writeUTF("");
-            dostream.writeUTF("");
-            return;
-        }
+    private void writeSection(MyDataOutputStream dostream, TextSection section) throws IOException {
+        dostream.writeUTF(SectionKind.TEXT.name());
         dostream.writeUTF(section.getTitle());
         dostream.writeUTF(section.getContent());
     }
 
-    private class MyDataOutputStream implements AutoCloseable {
+    private static class MyDataOutputStream implements AutoCloseable {
         private DataOutputStream stream;
 
-        public MyDataOutputStream(OutputStream stream) {
+        MyDataOutputStream(OutputStream stream) {
             this.stream = new DataOutputStream(stream);
         }
 
-        public void writeUTF(String str) throws IOException {
-            stream.writeUTF(str != null ? str : "");
+        void writeUTF(String str) throws IOException {
+            stream.writeUTF(str != null ? str : "<<null>>");
         }
 
-        public void writeInt(int val) throws IOException {
+        void writeInt(int val) throws IOException {
             stream.writeInt(val);
         }
 
         @Override
         public void close() throws IOException {
-            try (OutputStream ostream = stream) {
-                stream.close();
-            }
+            stream.close();
         }
+    }
+
+    private static class MyDataInputStream implements AutoCloseable {
+        private DataInputStream stream;
+
+        MyDataInputStream(InputStream stream) {
+            this.stream = new DataInputStream(stream);
+        }
+
+        String readUTF() throws IOException {
+            String str = stream.readUTF();
+            return str.equals("<<null>>") ? null : str;
+        }
+
+        int readInt() throws IOException {
+            return stream.readInt();
+        }
+
+        @Override
+        public void close() throws IOException {
+            stream.close();
+        }
+    }
+
+    enum SectionKind {
+        TEXT,
+        LIST,
+        ORGANIZATION
     }
 }
