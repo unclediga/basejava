@@ -24,12 +24,7 @@ public class OrganizationSection extends AbstractSection {
     public OrganizationSection() {
     }
 
-    public OrganizationSection(String title) {
-        setTitle(title);
-    }
-
-    public OrganizationSection(String title, Organization... organizations) {
-        setTitle(title);
+    public OrganizationSection(Organization... organizations) {
         for (Organization organization : organizations) {
             content.add(organization);
         }
@@ -84,8 +79,8 @@ public class OrganizationSection extends AbstractSection {
             if (this == o) return true;
             if (!(o instanceof Organization)) return false;
             Organization that = (Organization) o;
-            return link.equals(that.link) &&
-                    positions.equals(that.positions);
+            return Objects.equals(link, that.link) &&
+                    Objects.equals(positions, that.positions);
         }
 
         @Override
@@ -166,21 +161,20 @@ public class OrganizationSection extends AbstractSection {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof OrganizationSection)) return false;
         OrganizationSection that = (OrganizationSection) o;
-        return Objects.equals(content, that.content) && Objects.equals(getTitle(), that.getTitle());
+        return Objects.equals(content, that.content);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(content, getTitle());
+        return Objects.hash(content);
     }
 
     @Override
     public String toString() {
         return "OrganizationSection{" +
-                "title='" + getTitle() + '\'' +
-                ", content=" + content +
+                "content=" + content +
                 '}';
     }
 

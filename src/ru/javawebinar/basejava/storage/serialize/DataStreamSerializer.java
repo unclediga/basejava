@@ -44,7 +44,6 @@ public class DataStreamSerializer implements StreamSerializer {
 
     private OrganizationSection readOrganizationSection(MyDataInputStream distream) throws IOException {
         OrganizationSection section = new OrganizationSection();
-        section.setTitle(distream.readUTF());
         List<OrganizationSection.Organization> organizations = new ArrayList<>();
         int sizeOrg = distream.readInt();
         for (int i = 0; i < sizeOrg; i++) {
@@ -70,7 +69,6 @@ public class DataStreamSerializer implements StreamSerializer {
 
     private ListSection readListSection(MyDataInputStream distream) throws IOException {
         ListSection section = new ListSection();
-        section.setTitle(distream.readUTF());
         int size = distream.readInt();
         for (int i = 0; i < size; i++) {
             section.addSubsection(distream.readUTF());
@@ -79,9 +77,7 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
     private TextSection readTextSection(MyDataInputStream distream) throws IOException {
-        TextSection textSection = new TextSection(distream.readUTF());
-        textSection.setContent(distream.readUTF());
-        return textSection;
+        return new TextSection(distream.readUTF());
     }
 
     @Override
@@ -114,7 +110,6 @@ public class DataStreamSerializer implements StreamSerializer {
 
     private void writeSection(MyDataOutputStream dostream, OrganizationSection section) throws IOException {
         dostream.writeUTF(SectionKind.ORGANIZATION.name());
-        dostream.writeUTF(section.getTitle());
         List<OrganizationSection.Organization> organizations = section.getContent();
         dostream.writeInt(organizations.size());
         for (OrganizationSection.Organization organization : organizations) {
@@ -134,7 +129,6 @@ public class DataStreamSerializer implements StreamSerializer {
 
     private void writeSection(MyDataOutputStream dostream, ListSection section) throws IOException {
         dostream.writeUTF(SectionKind.LIST.name());
-        dostream.writeUTF(section.getTitle());
         List<String> contents = section.getContent();
         dostream.writeInt(contents.size());
         for (String content : contents) {
@@ -144,7 +138,6 @@ public class DataStreamSerializer implements StreamSerializer {
 
     private void writeSection(MyDataOutputStream dostream, TextSection section) throws IOException {
         dostream.writeUTF(SectionKind.TEXT.name());
-        dostream.writeUTF(section.getTitle());
         dostream.writeUTF(section.getContent());
     }
 

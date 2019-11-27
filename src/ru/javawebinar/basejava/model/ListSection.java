@@ -15,12 +15,12 @@ public class ListSection extends AbstractSection {
     public ListSection() {
     }
 
-    public ListSection(String title, List<String> content) {
-        setTitle(title);
+    public ListSection(List<String> content) {
         this.content = content;
     }
-    public ListSection(String title, String... subsections) {
-        this(title, Arrays.asList(subsections));
+
+    public ListSection(String... subsections) {
+        this(Arrays.asList(subsections));
     }
 
     public List<String> getContent() {
@@ -36,19 +36,18 @@ public class ListSection extends AbstractSection {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ListSection that = (ListSection) o;
-        return Objects.equals(content, that.content) && Objects.equals(getTitle(), that.getTitle());
+        return Objects.equals(content, that.content);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(content, getTitle());
+        return Objects.hash(content);
     }
 
     @Override
     public String toString() {
         return "ListSection{" +
-                "title='" + getTitle() + '\'' +
-                ", content=" + content +
+                "content=" + content +
                 '}';
     }
 }
