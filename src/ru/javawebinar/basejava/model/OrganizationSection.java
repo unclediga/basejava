@@ -192,7 +192,9 @@ public class OrganizationSection extends AbstractSection {
         private LocalDate dateFrom;
         @XmlJavaTypeAdapter(LocalDateAdapter.class)
         private LocalDate dateTo;
-        private TextSection content;
+        private String title;
+        private String description;
+
 
         public Position() {
         }
@@ -205,15 +207,14 @@ public class OrganizationSection extends AbstractSection {
             this(DateUtil.of(yearFrom, monthFrom), DateUtil.of(yearTo, monthTo), workTitle, subsection);
         }
 
-        public Position(LocalDate dateFrom, LocalDate dateTo, String title, String content) {
+        public Position(LocalDate dateFrom, LocalDate dateTo, String title, String description) {
             Objects.requireNonNull(dateFrom, "dateFrom must be not null!");
             Objects.requireNonNull(dateTo, "dateTo must be not null!");
             Objects.requireNonNull(title, "title must be not null!");
             this.dateFrom = dateFrom;
             this.dateTo = dateTo;
-            TextSection textSection = new TextSection(title);
-            textSection.setContent(content);
-            this.content = textSection;
+            this.title = title;
+            this.description = description;
         }
 
         public LocalDate getDateFrom() {
@@ -232,12 +233,20 @@ public class OrganizationSection extends AbstractSection {
             this.dateTo = dateTo;
         }
 
-        public TextSection getContent() {
-            return content;
+        public String getTitle() {
+            return title;
         }
 
-        public void setContent(TextSection content) {
-            this.content = content;
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
         }
 
         @Override
@@ -245,14 +254,15 @@ public class OrganizationSection extends AbstractSection {
             if (this == o) return true;
             if (!(o instanceof Position)) return false;
             Position position = (Position) o;
-            return dateFrom.equals(position.dateFrom) &&
-                    dateTo.equals(position.dateTo) &&
-                    content.equals(position.content);
+            return Objects.equals(dateFrom, position.dateFrom) &&
+                    Objects.equals(dateTo, position.dateTo) &&
+                    Objects.equals(title, position.title) &&
+                    Objects.equals(description, position.description);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(dateFrom, dateTo, content);
+            return Objects.hash(dateFrom, dateTo, title, description);
         }
 
         @Override
@@ -260,7 +270,8 @@ public class OrganizationSection extends AbstractSection {
             return "Position{" +
                     "dateFrom=" + dateFrom +
                     ", dateTo=" + dateTo +
-                    ", content=" + content +
+                    ", title='" + title + '\'' +
+                    ", description='" + description + '\'' +
                     '}';
         }
     }

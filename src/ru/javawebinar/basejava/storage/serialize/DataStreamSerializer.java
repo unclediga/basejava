@@ -57,7 +57,8 @@ public class DataStreamSerializer implements StreamSerializer {
                 OrganizationSection.Position position = new OrganizationSection.Position();
                 position.setDateFrom(LocalDate.parse(distream.readUTF()));
                 position.setDateTo(LocalDate.parse(distream.readUTF()));
-                position.setContent((TextSection) readSection(distream));
+                position.setTitle(distream.readUTF());
+                position.setDescription(distream.readUTF());
                 positions.add(position);
             }
             organization.setPositions(positions);
@@ -125,7 +126,8 @@ public class DataStreamSerializer implements StreamSerializer {
             for (OrganizationSection.Position position : positions) {
                 dostream.writeUTF(position.getDateFrom().toString());
                 dostream.writeUTF(position.getDateTo().toString());
-                writeSection(dostream, position.getContent());
+                dostream.writeUTF(position.getTitle());
+                dostream.writeUTF(position.getDescription());
             }
         }
     }
