@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DataStreamSerializer implements StreamSerializer {
+
     @Override
     public Resume read(InputStream stream) throws IOException {
         try (DataInputStream distream = new DataInputStream(stream)) {
@@ -22,7 +23,7 @@ public class DataStreamSerializer implements StreamSerializer {
             size = distream.readInt(); // count of sections
             for (int i = 0; i < size; i++) {
                 SectionType sectionType = SectionType.valueOf(readUTF(distream));
-                AbstractSection section = null;
+                AbstractSection section;
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
@@ -83,6 +84,11 @@ public class DataStreamSerializer implements StreamSerializer {
         return new TextSection(distream.readUTF());
     }
 
+    @FunctionalInterface
+    interface ElementWriter {
+        public void write(DataOutputStream stream, Object element) throws IOException;
+    }
+
     @Override
     public void write(Resume resume, OutputStream stream) throws IOException {
         try (DataOutputStream dostream = new DataOutputStream(stream)) {
@@ -120,53 +126,35 @@ public class DataStreamSerializer implements StreamSerializer {
         }
     }
 
-    private void writeSection(DataOutputStream dostream, OrganizationSection section) throws IOException {
-        List<OrganizationSection.Organization> organizations = section.getContent();
-        dostream.writeInt(organizations.size());
-        for (OrganizationSection.Organization organization : organizations) {
-            writeElement(dostream, organization);
-        }
-    }
-
-    private void writeElement(DataOutputStream dostream, OrganizationSection.Organization organization) throws IOException {
-        OrganizationSection.Link link = organization.getLink();
-        writeUTF(dostream, link.getTitle());
-        writeUTF(dostream, link.getHomePage());
-        List<OrganizationSection.Position> positions = organization.getPositions();
-        writeList(dostream, positions);
-    }
-
-    private void writeList(DataOutputStream dostream, List<OrganizationSection.Organization> list) throws IOException {
+    private void writeList(DataOutputStream dostream, List list, ElementWriter elementWriter) throws IOException {
         dostream.writeInt(list.size());
-        for (OrganizationSection.Organization el : list) {
-            writeElement(dostream, el);
-        }
-    }
-
-    private void writeList(DataOutputStream dostream, List<OrganizationSection.Position> list) throws IOException {
-        dostream.writeInt(list.size());
-        for (OrganizationSection.Position el : list) {
-            writeElement(dostream, el);
-        }
-    }
-
-    private void writeElement(DataOutputStream dostream, OrganizationSection.Position position) throws IOException {
-        writeUTF(dostream, position.getDateFrom().toString());
-        writeUTF(dostream, position.getDateTo().toString());
-        writeUTF(dostream, position.getTitle());
-        writeUTF(dostream, position.getDescription());
-    }
-
-    private void writeSection(DataOutputStream dostream, ListSection section) throws IOException {
-        List<String> contents = section.getContent();
-        dostream.writeInt(contents.size());
-        for (String content : contents) {
-            writeUTF(dostream, content);
+        for (Object el : list) {
+            elementWriter.write(dostream, el);
         }
     }
 
     private void writeSection(DataOutputStream dostream, TextSection section) throws IOException {
         writeUTF(dostream, section.getContent());
+    }
+
+    private void writeSection(DataOutputStream dostream, ListSection section) throws IOException {
+        writeList(dostream, section.getContent(), (stream, element) -> writeUTF(stream, (String) element));
+    }
+
+    private void writeSection(DataOutputStream dostream, OrganizationSection section) throws IOException {
+        writeList(dostream, section.getContent(), (stream, element) -> {
+            OrganizationSection.Organization organization = (OrganizationSection.Organization) element;
+            OrganizationSection.Link link = organization.getLink();
+            writeUTF(stream, link.getTitle());
+            writeUTF(stream, link.getHomePage());
+            writeList(stream, organization.getPositions(), (stream2, element2) -> {
+                OrganizationSection.Position position = (OrganizationSection.Position) element2;
+                writeUTF(stream2, position.getDateFrom().toString());
+                writeUTF(stream2, position.getDateTo().toString());
+                writeUTF(stream2, position.getTitle());
+                writeUTF(stream2, position.getDescription());
+            });
+        });
     }
 
     private String readUTF(DataInputStream stream) throws IOException {
