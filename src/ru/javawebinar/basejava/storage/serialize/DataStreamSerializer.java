@@ -4,9 +4,7 @@ import ru.javawebinar.basejava.model.*;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataStreamSerializer implements StreamSerializer {
 
@@ -58,8 +56,8 @@ public class DataStreamSerializer implements StreamSerializer {
             List<OrganizationSection.Position> positions = new ArrayList<>();
             for (int j = 0; j < sizePos; j++) {
                 OrganizationSection.Position position = new OrganizationSection.Position();
-                position.setDateFrom(LocalDate.parse(readUTF(distream)));
-                position.setDateTo(LocalDate.parse(readUTF(distream)));
+                position.setDateFrom(LocalDate.parse(distream.readUTF()));
+                position.setDateTo(LocalDate.parse(distream.readUTF()));
                 position.setTitle(readUTF(distream));
                 position.setDescription(readUTF(distream));
                 positions.add(position);
@@ -81,12 +79,11 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
     private TextSection readTextSection(DataInputStream distream) throws IOException {
-        return new TextSection(distream.readUTF());
+        return new TextSection(readUTF(distream));
     }
 
-    @FunctionalInterface
-    interface ElementWriter {
-        public void write(DataOutputStream stream, Object element) throws IOException;
+    interface ElementWriter<T> {
+        void write(DataOutputStream stream, T element) throws IOException;
     }
 
     @Override
@@ -94,65 +91,59 @@ public class DataStreamSerializer implements StreamSerializer {
         try (DataOutputStream dostream = new DataOutputStream(stream)) {
             writeUTF(dostream, resume.getUuid());
             writeUTF(dostream, resume.getFullName());
-            Map<ContactType, String> contacts = resume.getContacts();
-            dostream.writeInt(contacts.size());
-            for (Map.Entry<ContactType, String> contact : contacts.entrySet()) {
-                writeUTF(dostream, contact.getKey().name());
-                writeUTF(dostream, contact.getValue());
-            }
-            Map<SectionType, AbstractSection> sections = resume.getSections();
-            dostream.writeInt(sections.size());
-            for (Map.Entry<SectionType, AbstractSection> sectionEntry : sections.entrySet()) {
+            writeList(dostream, resume.getContacts().entrySet(), (cstream, contactEntry) -> {
+                writeUTF(cstream, contactEntry.getKey().name());
+                writeUTF(cstream, contactEntry.getValue());
+            });
+            writeList(dostream, resume.getSections().entrySet(), (sstream, sectionEntry) -> {
                 SectionType sectionType = sectionEntry.getKey();
-                writeUTF(dostream, sectionType.name());
                 AbstractSection section = sectionEntry.getValue();
+                writeUTF(sstream, sectionType.name());
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
-                        writeSection(dostream, (TextSection) section);
+                        writeSection(sstream, (TextSection) section);
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        writeSection(dostream, (ListSection) section);
+                        writeSection(sstream, (ListSection) section);
                         break;
                     case EDUCATION:
                     case EXPERIENCE:
-                        writeSection(dostream, (OrganizationSection) section);
+                        writeSection(sstream, (OrganizationSection) section);
                         break;
                     default:
                         throw new IllegalStateException("Unknown section type " + sectionType);
                 }
-            }
+            });
         }
     }
 
-    private void writeList(DataOutputStream dostream, List list, ElementWriter elementWriter) throws IOException {
-        dostream.writeInt(list.size());
-        for (Object el : list) {
-            elementWriter.write(dostream, el);
+    private <T> void writeList(DataOutputStream stream, Collection<T> collection, ElementWriter<T> elementWriter) throws IOException {
+        stream.writeInt(collection.size());
+        for (T el : collection) {
+            elementWriter.write(stream, el);
         }
     }
 
-    private void writeSection(DataOutputStream dostream, TextSection section) throws IOException {
-        writeUTF(dostream, section.getContent());
+    private void writeSection(DataOutputStream stream, TextSection section) throws IOException {
+        writeUTF(stream, section.getContent());
     }
 
-    private void writeSection(DataOutputStream dostream, ListSection section) throws IOException {
-        writeList(dostream, section.getContent(), (stream, element) -> writeUTF(stream, (String) element));
+    private void writeSection(DataOutputStream stream, ListSection section) throws IOException {
+        writeList(stream, section.getContent(), this::writeUTF);
     }
 
-    private void writeSection(DataOutputStream dostream, OrganizationSection section) throws IOException {
-        writeList(dostream, section.getContent(), (stream, element) -> {
-            OrganizationSection.Organization organization = (OrganizationSection.Organization) element;
+    private void writeSection(DataOutputStream stream, OrganizationSection section) throws IOException {
+        writeList(stream, section.getContent(), (ostream, organization) -> {
             OrganizationSection.Link link = organization.getLink();
-            writeUTF(stream, link.getTitle());
-            writeUTF(stream, link.getHomePage());
-            writeList(stream, organization.getPositions(), (stream2, element2) -> {
-                OrganizationSection.Position position = (OrganizationSection.Position) element2;
-                writeUTF(stream2, position.getDateFrom().toString());
-                writeUTF(stream2, position.getDateTo().toString());
-                writeUTF(stream2, position.getTitle());
-                writeUTF(stream2, position.getDescription());
+            writeUTF(ostream, link.getTitle());
+            writeUTF(ostream, link.getHomePage());
+            writeList(ostream, organization.getPositions(), (pstream, position) -> {
+                writeUTF(pstream, position.getDateFrom().toString());
+                writeUTF(pstream, position.getDateTo().toString());
+                writeUTF(pstream, position.getTitle());
+                writeUTF(pstream, position.getDescription());
             });
         });
     }
