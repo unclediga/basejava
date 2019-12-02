@@ -10,7 +10,7 @@ import java.util.List;
 
 public class DataStreamSerializer implements StreamSerializer {
     ///////////////////////////////////////////////////////////////////////////
-    //       R E A D
+    //       R E A D I N G
     //////////////////////////////////////////////////////////////////////////
     @Override
     public Resume read(InputStream stream) throws IOException {
@@ -18,12 +18,10 @@ public class DataStreamSerializer implements StreamSerializer {
             String uuid = readUTF(distream);
             String fullName = readUTF(distream);
             Resume resume = new Resume(uuid, fullName);
-            int size = distream.readInt();
-            for (int i = 0; i < size; i++) { // count of contacts
+            readSequence(distream, () -> {
                 resume.addContact(ContactType.valueOf(readUTF(distream)), readUTF(distream));
-            }
-            size = distream.readInt(); // count of sections
-            for (int i = 0; i < size; i++) {
+            });
+            readSequence(distream, () -> {
                 SectionType sectionType = SectionType.valueOf(readUTF(distream));
                 AbstractSection section;
                 switch (sectionType) {
@@ -43,42 +41,50 @@ public class DataStreamSerializer implements StreamSerializer {
                         throw new IllegalStateException("Unknown section type " + sectionType);
                 }
                 resume.addSection(sectionType, section);
-            }
+            });
             return resume;
+        }
+    }
+
+    interface SequenceReader {
+        void read() throws IOException;
+    }
+
+    private void readSequence(DataInputStream istream, SequenceReader reader) throws IOException {
+        int size = istream.readInt();
+        for (int i = 0; i < size; i++) {
+            reader.read();
         }
     }
 
     private OrganizationSection readOrganizationSection(DataInputStream distream) throws IOException {
         OrganizationSection section = new OrganizationSection();
         List<OrganizationSection.Organization> organizations = new ArrayList<>();
-        int sizeOrg = distream.readInt();
-        for (int i = 0; i < sizeOrg; i++) {
+        readSequence(distream, () -> {
             OrganizationSection.Organization organization = new OrganizationSection.Organization();
             OrganizationSection.Link link = new OrganizationSection.Link(readUTF(distream), readUTF(distream));
             organization.setLink(link);
-            int sizePos = distream.readInt();
             List<OrganizationSection.Position> positions = new ArrayList<>();
-            for (int j = 0; j < sizePos; j++) {
+            readSequence(distream, () -> {
                 OrganizationSection.Position position = new OrganizationSection.Position();
                 position.setDateFrom(LocalDate.parse(distream.readUTF()));
                 position.setDateTo(LocalDate.parse(distream.readUTF()));
                 position.setTitle(readUTF(distream));
                 position.setDescription(readUTF(distream));
                 positions.add(position);
-            }
+            });
             organization.setPositions(positions);
             organizations.add(organization);
-        }
+        });
         section.setContent(organizations);
         return section;
     }
 
     private ListSection readListSection(DataInputStream distream) throws IOException {
         ListSection section = new ListSection();
-        int size = distream.readInt();
-        for (int i = 0; i < size; i++) {
+        readSequence(distream, () -> {
             section.addSubsection(readUTF(distream));
-        }
+        });
         return section;
     }
 
@@ -92,7 +98,7 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    //       W R I T E
+    //       W R I T I N G
     //////////////////////////////////////////////////////////////////////////
     @Override
     public void write(Resume resume, OutputStream stream) throws IOException {
