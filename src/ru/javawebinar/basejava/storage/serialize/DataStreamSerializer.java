@@ -4,10 +4,14 @@ import ru.javawebinar.basejava.model.*;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class DataStreamSerializer implements StreamSerializer {
-
+    ///////////////////////////////////////////////////////////////////////////
+    //       R E A D
+    //////////////////////////////////////////////////////////////////////////
     @Override
     public Resume read(InputStream stream) throws IOException {
         try (DataInputStream distream = new DataInputStream(stream)) {
@@ -82,35 +86,39 @@ public class DataStreamSerializer implements StreamSerializer {
         return new TextSection(readUTF(distream));
     }
 
-    interface ElementWriter<T> {
-        void write(DataOutputStream stream, T element) throws IOException;
+    private String readUTF(DataInputStream stream) throws IOException {
+        String str = stream.readUTF();
+        return str.equals("") ? null : str;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    //       W R I T E
+    //////////////////////////////////////////////////////////////////////////
     @Override
     public void write(Resume resume, OutputStream stream) throws IOException {
         try (DataOutputStream dostream = new DataOutputStream(stream)) {
             writeUTF(dostream, resume.getUuid());
             writeUTF(dostream, resume.getFullName());
-            writeList(dostream, resume.getContacts().entrySet(), (cstream, contactEntry) -> {
-                writeUTF(cstream, contactEntry.getKey().name());
-                writeUTF(cstream, contactEntry.getValue());
+            writeCollection(dostream, resume.getContacts().entrySet(), contactEntry -> {
+                writeUTF(dostream, contactEntry.getKey().name());
+                writeUTF(dostream, contactEntry.getValue());
             });
-            writeList(dostream, resume.getSections().entrySet(), (sstream, sectionEntry) -> {
+            writeCollection(dostream, resume.getSections().entrySet(), sectionEntry -> {
                 SectionType sectionType = sectionEntry.getKey();
                 AbstractSection section = sectionEntry.getValue();
-                writeUTF(sstream, sectionType.name());
+                writeUTF(dostream, sectionType.name());
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
-                        writeSection(sstream, (TextSection) section);
+                        writeSection(dostream, (TextSection) section);
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        writeSection(sstream, (ListSection) section);
+                        writeSection(dostream, (ListSection) section);
                         break;
                     case EDUCATION:
                     case EXPERIENCE:
-                        writeSection(sstream, (OrganizationSection) section);
+                        writeSection(dostream, (OrganizationSection) section);
                         break;
                     default:
                         throw new IllegalStateException("Unknown section type " + sectionType);
@@ -119,10 +127,14 @@ public class DataStreamSerializer implements StreamSerializer {
         }
     }
 
-    private <T> void writeList(DataOutputStream stream, Collection<T> collection, ElementWriter<T> elementWriter) throws IOException {
+    interface ElementWriter<T> {
+        void write(T element) throws IOException;
+    }
+
+    private <T> void writeCollection(DataOutputStream stream, Collection<T> collection, ElementWriter<T> elementWriter) throws IOException {
         stream.writeInt(collection.size());
         for (T el : collection) {
-            elementWriter.write(stream, el);
+            elementWriter.write(el);
         }
     }
 
@@ -131,26 +143,23 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
     private void writeSection(DataOutputStream stream, ListSection section) throws IOException {
-        writeList(stream, section.getContent(), this::writeUTF);
-    }
-
-    private void writeSection(DataOutputStream stream, OrganizationSection section) throws IOException {
-        writeList(stream, section.getContent(), (ostream, organization) -> {
-            OrganizationSection.Link link = organization.getLink();
-            writeUTF(ostream, link.getTitle());
-            writeUTF(ostream, link.getHomePage());
-            writeList(ostream, organization.getPositions(), (pstream, position) -> {
-                writeUTF(pstream, position.getDateFrom().toString());
-                writeUTF(pstream, position.getDateTo().toString());
-                writeUTF(pstream, position.getTitle());
-                writeUTF(pstream, position.getDescription());
-            });
+        writeCollection(stream, section.getContent(), element -> {
+            writeUTF(stream, element);
         });
     }
 
-    private String readUTF(DataInputStream stream) throws IOException {
-        String str = stream.readUTF();
-        return str.equals("") ? null : str;
+    private void writeSection(DataOutputStream stream, OrganizationSection section) throws IOException {
+        writeCollection(stream, section.getContent(), organization -> {
+            OrganizationSection.Link link = organization.getLink();
+            writeUTF(stream, link.getTitle());
+            writeUTF(stream, link.getHomePage());
+            writeCollection(stream, organization.getPositions(), position -> {
+                writeUTF(stream, position.getDateFrom().toString());
+                writeUTF(stream, position.getDateTo().toString());
+                writeUTF(stream, position.getTitle());
+                writeUTF(stream, position.getDescription());
+            });
+        });
     }
 
     private void writeUTF(DataOutputStream stream, String str) throws IOException {
