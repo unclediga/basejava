@@ -9,18 +9,13 @@ import java.util.Collection;
 import java.util.List;
 
 public class DataStreamSerializer implements StreamSerializer {
-    ///////////////////////////////////////////////////////////////////////////
-    //       R E A D I N G
-    //////////////////////////////////////////////////////////////////////////
     @Override
     public Resume read(InputStream stream) throws IOException {
         try (DataInputStream distream = new DataInputStream(stream)) {
             String uuid = readUTF(distream);
             String fullName = readUTF(distream);
             Resume resume = new Resume(uuid, fullName);
-            readSequence(distream, () -> {
-                resume.addContact(ContactType.valueOf(readUTF(distream)), readUTF(distream));
-            });
+            readSequence(distream, () -> resume.addContact(ContactType.valueOf(readUTF(distream)), readUTF(distream)));
             readSequence(distream, () -> {
                 SectionType sectionType = SectionType.valueOf(readUTF(distream));
                 AbstractSection section;
@@ -82,9 +77,7 @@ public class DataStreamSerializer implements StreamSerializer {
 
     private ListSection readListSection(DataInputStream distream) throws IOException {
         ListSection section = new ListSection();
-        readSequence(distream, () -> {
-            section.addSubsection(readUTF(distream));
-        });
+        readSequence(distream, () -> section.addSubsection(readUTF(distream)));
         return section;
     }
 
@@ -97,9 +90,6 @@ public class DataStreamSerializer implements StreamSerializer {
         return str.equals("") ? null : str;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    //       W R I T I N G
-    //////////////////////////////////////////////////////////////////////////
     @Override
     public void write(Resume resume, OutputStream stream) throws IOException {
         try (DataOutputStream dostream = new DataOutputStream(stream)) {
@@ -149,9 +139,7 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
     private void writeSection(DataOutputStream stream, ListSection section) throws IOException {
-        writeCollection(stream, section.getContent(), element -> {
-            writeUTF(stream, element);
-        });
+        writeCollection(stream, section.getContent(), element -> writeUTF(stream, element));
     }
 
     private void writeSection(DataOutputStream stream, OrganizationSection section) throws IOException {
