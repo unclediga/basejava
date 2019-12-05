@@ -12,8 +12,8 @@ public class TextSection extends AbstractSection {
     public TextSection() {
     }
 
-    public TextSection(String title) {
-        setTitle(title);
+    public TextSection(String content) {
+        this.content = content;
     }
 
     public String getContent() {
@@ -25,23 +25,22 @@ public class TextSection extends AbstractSection {
     }
 
     @Override
-    public String toString() {
-        return "TextSection{" +
-                "title='" + getTitle() + '\'' +
-                ", content='" + content + '\'' +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof TextSection)) return false;
         TextSection that = (TextSection) o;
-        return Objects.equals(content, that.content) && Objects.equals(getTitle(), that.getTitle());
+        return Objects.equals(content, that.content);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(content, getTitle());
+        return Objects.hash(content);
+    }
+
+    @Override
+    public String toString() {
+        return "TextSection{" +
+                "content='" + content + '\'' +
+                '}';
     }
 }

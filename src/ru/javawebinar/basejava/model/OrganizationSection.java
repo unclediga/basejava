@@ -24,15 +24,18 @@ public class OrganizationSection extends AbstractSection {
     public OrganizationSection() {
     }
 
-    public OrganizationSection(String title) {
-        setTitle(title);
-    }
-
-    public OrganizationSection(String title, Organization... organizations) {
-        setTitle(title);
+    public OrganizationSection(Organization... organizations) {
         for (Organization organization : organizations) {
             content.add(organization);
         }
+    }
+
+    public List<Organization> getContent() {
+        return content;
+    }
+
+    public void setContent(List<Organization> content) {
+        this.content = content;
     }
 
     // Organization ////////////////////////////////////////////////////////////
@@ -55,13 +58,29 @@ public class OrganizationSection extends AbstractSection {
             this.positions = positions;
         }
 
+        public Link getLink() {
+            return link;
+        }
+
+        public void setLink(Link link) {
+            this.link = link;
+        }
+
+        public List<Position> getPositions() {
+            return positions;
+        }
+
+        public void setPositions(List<Position> positions) {
+            this.positions = positions;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof Organization)) return false;
             Organization that = (Organization) o;
-            return link.equals(that.link) &&
-                    positions.equals(that.positions);
+            return Objects.equals(link, that.link) &&
+                    Objects.equals(positions, that.positions);
         }
 
         @Override
@@ -92,6 +111,14 @@ public class OrganizationSection extends AbstractSection {
             Objects.requireNonNull(title, "title must not be null");
             this.title = title;
             this.homePage = homePage;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getHomePage() {
+            return homePage;
         }
 
         @Override
@@ -134,21 +161,20 @@ public class OrganizationSection extends AbstractSection {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof OrganizationSection)) return false;
         OrganizationSection that = (OrganizationSection) o;
-        return Objects.equals(content, that.content) && Objects.equals(getTitle(), that.getTitle());
+        return Objects.equals(content, that.content);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(content, getTitle());
+        return Objects.hash(content);
     }
 
     @Override
     public String toString() {
         return "OrganizationSection{" +
-                "title='" + getTitle() + '\'' +
-                ", content=" + content +
+                "content=" + content +
                 '}';
     }
 
@@ -160,7 +186,9 @@ public class OrganizationSection extends AbstractSection {
         private LocalDate dateFrom;
         @XmlJavaTypeAdapter(LocalDateAdapter.class)
         private LocalDate dateTo;
-        private TextSection content;
+        private String title;
+        private String description;
+
 
         public Position() {
         }
@@ -173,15 +201,14 @@ public class OrganizationSection extends AbstractSection {
             this(DateUtil.of(yearFrom, monthFrom), DateUtil.of(yearTo, monthTo), workTitle, subsection);
         }
 
-        public Position(LocalDate dateFrom, LocalDate dateTo, String title, String content) {
+        public Position(LocalDate dateFrom, LocalDate dateTo, String title, String description) {
             Objects.requireNonNull(dateFrom, "dateFrom must be not null!");
             Objects.requireNonNull(dateTo, "dateTo must be not null!");
             Objects.requireNonNull(title, "title must be not null!");
             this.dateFrom = dateFrom;
             this.dateTo = dateTo;
-            TextSection textSection = new TextSection(title);
-            textSection.setContent(content);
-            this.content = textSection;
+            this.title = title;
+            this.description = description;
         }
 
         public LocalDate getDateFrom() {
@@ -200,12 +227,20 @@ public class OrganizationSection extends AbstractSection {
             this.dateTo = dateTo;
         }
 
-        public TextSection getContent() {
-            return content;
+        public String getTitle() {
+            return title;
         }
 
-        public void setContent(TextSection content) {
-            this.content = content;
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
         }
 
         @Override
@@ -213,14 +248,15 @@ public class OrganizationSection extends AbstractSection {
             if (this == o) return true;
             if (!(o instanceof Position)) return false;
             Position position = (Position) o;
-            return dateFrom.equals(position.dateFrom) &&
-                    dateTo.equals(position.dateTo) &&
-                    content.equals(position.content);
+            return Objects.equals(dateFrom, position.dateFrom) &&
+                    Objects.equals(dateTo, position.dateTo) &&
+                    Objects.equals(title, position.title) &&
+                    Objects.equals(description, position.description);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(dateFrom, dateTo, content);
+            return Objects.hash(dateFrom, dateTo, title, description);
         }
 
         @Override
@@ -228,7 +264,8 @@ public class OrganizationSection extends AbstractSection {
             return "Position{" +
                     "dateFrom=" + dateFrom +
                     ", dateTo=" + dateTo +
-                    ", content=" + content +
+                    ", title='" + title + '\'' +
+                    ", description='" + description + '\'' +
                     '}';
         }
     }

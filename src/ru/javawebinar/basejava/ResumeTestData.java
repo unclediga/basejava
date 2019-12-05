@@ -164,15 +164,15 @@ public class ResumeTestData {
             switch (sectionType) {
                 case PERSONAL:
                 case OBJECTIVE:
-                    section = new TextSection(sectionType.getTitle());
+                    section = new TextSection();
                     break;
                 case ACHIEVEMENT:
                 case QUALIFICATIONS:
-                    section = new ListSection(sectionType.getTitle());
+                    section = new ListSection();
                     break;
                 case EXPERIENCE:
                 case EDUCATION:
-                    section = new OrganizationSection(sectionType.getTitle());
+                    section = new OrganizationSection();
                     break;
             }
             resume.addSection(sectionType, section);
