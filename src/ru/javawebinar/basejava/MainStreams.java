@@ -41,11 +41,7 @@ public class MainStreams {
     List<Integer> getOddOrEven(List<Integer> list) {
         Supplier<Combi> supplier = Combi::new;
         BiConsumer<Combi, Integer> accumulator = (acc, x) -> {
-            if (x % 2 == 0) {
-                acc.ev.add(x);
-            } else {
-                acc.od.add(x);
-            }
+            (x % 2 == 0 ? acc.ev : acc.od).add(x);
             acc.sum += x;
         };
         BinaryOperator<Combi> combiner = (left, right) -> {
