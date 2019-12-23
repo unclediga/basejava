@@ -1,75 +1,90 @@
 package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.exception.NotExistStorageException;
-import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
-import ru.javawebinar.basejava.sql.ConnectionFactory;
+import ru.javawebinar.basejava.sql.SQLHelper;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SQLStorage implements Storage {
-    private final ConnectionFactory connectionFactory;
+    private final SQLHelper helper;
 
     SQLStorage(String dbUrl, String dbUser, String dbPassword) {
-        connectionFactory = () -> DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+        helper = new SQLHelper(dbUrl, dbUser, dbPassword);
     }
 
     @Override
     public void clear() {
-        try (Connection conn = connectionFactory.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM resume");
+        helper.execute("DELETE FROM resume", ps -> {
             ps.execute();
-        } catch (SQLException e) {
-            throw new StorageException("Error connection", e);
-        }
+            return null;
+        });
     }
 
     @Override
     public void update(Resume resume) {
-
+        helper.execute("UPDATE resume SET full_name = ? WHERE uuid = ?", ps -> {
+            ps.setString(1, resume.getFullName());
+            ps.setString(2, resume.getUuid());
+            if (ps.executeUpdate() == 0)
+                throw new NotExistStorageException(resume.getUuid());
+            return null;
+        });
     }
 
     @Override
     public void save(Resume resume) {
-        try (Connection conn = connectionFactory.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement("INSERT resume(uuid, full_name) VALUES(?,?)");
+        helper.execute("INSERT INTO resume(uuid, full_name) VALUES(?,?)", ps -> {
             ps.setString(1, resume.getUuid());
             ps.setString(2, resume.getFullName());
-            ps.execute();
-        } catch (SQLException e) {
-            throw new StorageException("Error connection", e);
-        }
+            ps.executeUpdate();
+            return null;
+        });
     }
 
     @Override
     public Resume get(String uuid) {
-        try (Connection conn = connectionFactory.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM resume r WHERE r.uuid=?");
+        return helper.execute("SELECT * FROM resume r WHERE r.uuid = ?", ps -> {
             ps.setString(1, uuid);
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) {
                 throw new NotExistStorageException(uuid);
             }
-            Resume resume = new Resume(uuid, rs.getString("full_name"));
-            return resume;
-        } catch (SQLException e) {
-            throw new StorageException("Error connection", e);
-        }
+            return new Resume(rs.getString("uuid").trim(), rs.getString("full_name"));
+        });
     }
 
     @Override
     public void delete(String uuid) {
-
+        helper.execute("DELETE FROM resume WHERE uuid = ?", ps -> {
+            ps.setString(1, uuid);
+            if (ps.executeUpdate() == 0)
+                throw new NotExistStorageException(uuid);
+            return null;
+        });
     }
 
     @Override
     public List<Resume> getAllSorted() {
-        return null;
+        ArrayList<Resume> list = new ArrayList<>();
+        helper.execute("SELECT * FROM resume r ORDER BY full_name, uuid", ps -> {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new Resume(rs.getString("uuid").trim(), rs.getString("full_name")));
+            }
+            return null;
+        });
+        return list;
     }
 
     @Override
     public int size() {
-        return 0;
+        return helper.execute("SELECT count(*) FROM resume", ps -> {
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        });
     }
 }
