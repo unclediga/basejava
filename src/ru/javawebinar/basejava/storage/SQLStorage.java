@@ -1,13 +1,16 @@
 package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.exception.NotExistStorageException;
+import ru.javawebinar.basejava.model.ContactType;
 import ru.javawebinar.basejava.model.Resume;
 import ru.javawebinar.basejava.sql.SQLHelper;
 
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SQLStorage implements Storage {
     private final SQLHelper helper;
@@ -23,14 +26,27 @@ public class SQLStorage implements Storage {
 
     @Override
     public Resume get(String uuid) {
-        return helper.execute("SELECT * FROM resume r WHERE r.uuid = ?", ps -> {
-            ps.setString(1, uuid);
-            ResultSet rs = ps.executeQuery();
-            if (!rs.next()) {
-                throw new NotExistStorageException(uuid);
-            }
-            return new Resume(rs.getString("uuid").trim(), rs.getString("full_name"));
-        });
+        return helper.execute("" +
+                        "SELECT * FROM resume r " +
+                        "LEFT JOIN contact c " +
+                        "ON r.uuid = c.resume_uuid " +
+                        "WHERE r.uuid = ?",
+                ps -> {
+                    ps.setString(1, uuid);
+                    ResultSet rs = ps.executeQuery();
+                    if (!rs.next()) {
+                        throw new NotExistStorageException(uuid);
+                    }
+                    Resume resume = new Resume(rs.getString("uuid").trim(), rs.getString("full_name"));
+                    do {
+                        String type = rs.getString("type");
+                        if (type == null) break;
+                        ContactType contactType = ContactType.valueOf(type);
+                        String value = rs.getString("value");
+                        resume.addContact(contactType, value);
+                    } while (rs.next());
+                    return resume;
+                });
     }
 
     @Override
@@ -46,10 +62,21 @@ public class SQLStorage implements Storage {
 
     @Override
     public void save(Resume resume) {
-        helper.<Void>execute("INSERT INTO resume(uuid, full_name) VALUES(?,?)", ps -> {
-            ps.setString(1, resume.getUuid());
-            ps.setString(2, resume.getFullName());
-            ps.executeUpdate();
+        helper.<Void>executeTransactional(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement("INSERT INTO resume(uuid, full_name) VALUES(?,?)")) {
+                ps.setString(1, resume.getUuid());
+                ps.setString(2, resume.getFullName());
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement("INSERT INTO contact(resume_uuid, type, value) VALUES(?,?,?)")) {
+                for (Map.Entry<ContactType, String> e : resume.getContacts().entrySet()) {
+                    ps.setString(1, resume.getUuid());
+                    ps.setString(2, e.getKey().name());
+                    ps.setString(3, e.getValue());
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+            }
             return null;
         });
     }
@@ -58,8 +85,9 @@ public class SQLStorage implements Storage {
     public void delete(String uuid) {
         helper.<Void>execute("DELETE FROM resume WHERE uuid = ?", ps -> {
             ps.setString(1, uuid);
-            if (ps.executeUpdate() == 0)
+            if (ps.executeUpdate() == 0) {
                 throw new NotExistStorageException(uuid);
+            }
             return null;
         });
     }
@@ -67,12 +95,12 @@ public class SQLStorage implements Storage {
     @Override
     public List<Resume> getAllSorted() {
         return helper.execute("SELECT * FROM resume r ORDER BY full_name, uuid", ps -> {
-            ArrayList<Resume> list = new ArrayList<>();
             ResultSet rs = ps.executeQuery();
+            List<Resume> resumes = new ArrayList<>();
             while (rs.next()) {
-                list.add(new Resume(rs.getString("uuid").trim(), rs.getString("full_name")));
+                resumes.add(new Resume(rs.getString("uuid").trim(), rs.getString("full_name")));
             }
-            return list;
+            return resumes;
         });
     }
 
