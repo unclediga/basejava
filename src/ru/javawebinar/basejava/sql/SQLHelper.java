@@ -1,11 +1,11 @@
-package ru.javawebinar.basejava.util;
+package ru.javawebinar.basejava.sql;
 
 import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.StorageException;
-import ru.javawebinar.basejava.sql.ConnectionFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class SQLHelper {
@@ -15,9 +15,10 @@ public class SQLHelper {
         connectionFactory = () -> DriverManager.getConnection(dbUrl, dbUser, dbPassword);
     }
 
-    public <T> T execute(CustomCode<T> codeBlock) {
+    public <T> T execute(String sqlStatement, CustomCode<T> codeBlock) {
         try (Connection conn = connectionFactory.getConnection()) {
-            return codeBlock.exec(conn);
+            PreparedStatement ps = conn.prepareStatement(sqlStatement);
+            return codeBlock.exec(ps);
         } catch (SQLException e) {
 //                The SQLState is a 5-char code, of which the first two are common among all DB's...
 //                23: integrity constraint violation
@@ -31,6 +32,6 @@ public class SQLHelper {
     }
 
     public interface CustomCode<T> {
-        T exec(Connection conn) throws SQLException;
+        T exec(PreparedStatement ps) throws SQLException;
     }
 }
