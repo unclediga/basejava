@@ -7,6 +7,7 @@ import ru.javawebinar.basejava.sql.SQLHelper;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,20 +91,22 @@ public class SQLStorage implements Storage {
         return helper.execute("" +
                 "SELECT " +
                 "  r.full_name, r.uuid, " +
-                "  dense_rank() OVER (ORDER BY full_name, uuid) - 1 idx, " +
                 "  c.type, c.value " +
                 "FROM resume r LEFT JOIN contact c " +
-                "ON r.uuid = c.resume_uuid", ps -> {
+                "ON r.uuid = c.resume_uuid " +
+                "ORDER BY r.full_name, r.uuid", ps -> {
             ResultSet rs = ps.executeQuery();
-            List<Resume> resumes = new ArrayList<>();
+            LinkedHashMap<String, Resume> resumes = new LinkedHashMap<>();
             while (rs.next()) {
-                int idx = rs.getInt("idx");
-                if (resumes.size() == idx) {
-                    resumes.add(new Resume(rs.getString("uuid").trim(), rs.getString("full_name")));
+                String uuid = rs.getString("uuid");
+                Resume resume = resumes.get(uuid);
+                if (resume == null) {
+                    resume = new Resume(rs.getString("uuid").trim(), rs.getString("full_name"));
+                    resumes.put(uuid, resume);
                 }
-                addContact(resumes.get(idx), rs);
+                addContact(resume, rs);
             }
-            return resumes;
+            return new ArrayList<>(resumes.values());
         });
     }
 
