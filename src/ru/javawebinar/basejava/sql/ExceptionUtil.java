@@ -16,6 +16,6 @@ public class ExceptionUtil {
                 return new ExistStorageException(null/*resume.getUuid()*/);
             }
         }
-        return new StorageException("SQL Error", e);
+        return new StorageException("SQL Error:" + e.getMessage(), e);
     }
 }
