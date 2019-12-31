@@ -6,8 +6,7 @@ import org.junit.Test;
 import ru.javawebinar.basejava.Config;
 import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
-import ru.javawebinar.basejava.model.ContactType;
-import ru.javawebinar.basejava.model.Resume;
+import ru.javawebinar.basejava.model.*;
 
 import java.io.File;
 import java.util.Arrays;
@@ -39,10 +38,10 @@ public abstract class AbstractStorageTest {
         resume_4.addContact(ContactType.TELEPHONE, "44444");
         resume_4.addContact(ContactType.SKYPE, "Skype");
 
-//        resume_1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
-//        resume_1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
-//        resume_1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achivment11", "Achivment12", "Achivment13"));
-//        resume_1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
+        resume_1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
+        resume_1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
+        resume_1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achivment11", "Achivment12", "Achivment13"));
+        resume_1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
 //        resume_1.addSection(SectionType.EXPERIENCE,
 //                new OrganizationSection(
 //                        new OrganizationSection.Organization("Organization11", "http://Organization11.ru",
