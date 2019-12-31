@@ -1,7 +1,6 @@
 <%@ page import="ru.javawebinar.basejava.model.ContactType" %>
-<%@ page import="ru.javawebinar.basejava.model.Resume" %>
-<%@ page import="java.util.List" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -16,18 +15,15 @@
             <th>Имя</th>
             <th>Contact</th>
         </tr>
-        <%
-            for (Resume resume : (List<Resume>) request.getAttribute("resumes")) {
-        %>
-        <tr>
-            <td><a href="<%=resume.getUuid()%>"><%=resume.getFullName()%>
-            </a></td>
-            <td><%=resume.getContact(ContactType.EMAIL)%>
-            </td>
-        </tr>
-        <%
-            }
-        %>
+        <jsp:useBean id="resumes" scope="request" type="java.util.List"/>
+        <c:forEach var="resume" items="${resumes}">
+            <jsp:useBean id="resume" type="ru.javawebinar.basejava.model.Resume"/>
+
+            <tr>
+                <td><a href="${resume.uuid}"> ${resume.fullName}</a></td>
+                <td>${resume.getContact(ContactType.EMAIL)}</td>
+            </tr>
+        </c:forEach>
     </table>
 </section>
 <jsp:include page="fragments/footer.jsp"/>
