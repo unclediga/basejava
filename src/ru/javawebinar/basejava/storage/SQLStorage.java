@@ -182,6 +182,7 @@ public class SQLStorage implements Storage {
                             builder.append(subSection);
                             builder.append("\n");
                         }
+                        if (builder.length() > 0) builder.setLength(builder.length() - 1);
                         ps.setString(3, builder.toString());
                         break;
                     case EXPERIENCE:
