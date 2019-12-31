@@ -9,7 +9,7 @@
     <title>Курс JavaSE + Web.</title>
 </head>
 <body>
-<table>
+<table border="1" cellpadding="20" cellspacing="0">
     <tr>
         <th>Имя</th>
         <th>Contact</th>
