@@ -1,4 +1,7 @@
 <%@ page import="ru.javawebinar.basejava.model.ContactType" %>
+<%@ page import="ru.javawebinar.basejava.model.ListSection" %>
+<%@ page import="ru.javawebinar.basejava.model.SectionType" %>
+<%@ page import="ru.javawebinar.basejava.model.TextSection" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
@@ -25,9 +28,30 @@
             </dl>
         </c:forEach>
         <h3>Секции:</h3>
-        <input type="text" name="section" size=30 value="1"><br/>
-        <input type="text" name="section" size=30 value="2"><br/>
-        <input type="text" name="section" size=30 value="3"><br/>
+        <c:forEach var="sectionEntry" items="${resume.sections}">
+            <jsp:useBean id="sectionEntry"
+                         type="java.util.Map.Entry<ru.javawebinar.basejava.model.SectionType, ru.javawebinar.basejava.model.AbstractSection>"/>
+            <h4><%=sectionEntry.getKey().getTitle()%></h4>
+            <c:choose>
+                <c:when test="${sectionEntry.key eq SectionType.PERSONAL or sectionEntry.key eq SectionType.OBJECTIVE}">
+                    <input type="text" name="s_${sectionEntry.key}" size=50 value="<%= ((TextSection)(sectionEntry.getValue())).getContent() %>"><br/>
+                </c:when>
+                <c:when test="${sectionEntry.key eq SectionType.ACHIEVEMENT or sectionEntry.key eq SectionType.QUALIFICATIONS}">
+                    <ul>
+                        <%
+                            pageContext.setAttribute("listSection",(ListSection)(sectionEntry.getValue()));
+                        %>
+                        <c:forEach var="subsection" items="${listSection.content}">
+                            <jsp:useBean id="subsection" type="java.lang.String"/>
+                            <input type="text" name="section:${sectionEntry.key.name()}" size=50 value="${subsection}"><br/>
+                        </c:forEach>
+                    </ul>
+                </c:when>
+                <c:otherwise>
+                    Если не одно условие не есть верно.
+                </c:otherwise>
+            </c:choose>
+        </c:forEach>
         <hr>
         <button type="submit">Сохранить</button>
         <button onclick="window.history.back()">Отменить</button>
