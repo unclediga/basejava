@@ -6,7 +6,10 @@ import ru.javawebinar.basejava.model.*;
 import ru.javawebinar.basejava.sql.SQLHelper;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SQLStorage implements Storage {
     private final SQLHelper helper;
@@ -27,31 +30,34 @@ public class SQLStorage implements Storage {
 
     @Override
     public Resume get(String uuid) {
-        return helper.execute("" +
-                        "SELECT * FROM resume r " +
-                        "LEFT JOIN contact c " +
-                        "ON r.uuid = c.resume_uuid " +
-                        "WHERE r.uuid = ?",
-                ps -> {
-                    ps.setString(1, uuid);
-                    ResultSet rs = ps.executeQuery();
-                    if (!rs.next()) {
-                        throw new NotExistStorageException(uuid);
-                    }
-                    Resume resume = new Resume(rs.getString("uuid").trim(), rs.getString("full_name"));
-                    do {
-                        addContact(resume, rs);
-                    } while (rs.next());
-                    helper.execute("SELECT type, content FROM section WHERE resume_uuid = ?", ps_s -> {
-                        ps_s.setString(1, uuid);
-                        ResultSet rs_s = ps_s.executeQuery();
-                        while (rs_s.next()) {
-                            addSection(resume, rs_s);
-                        }
-                        return null;
-                    });
-                    return resume;
-                });
+        return helper.executeTransactional(conn -> {
+            Resume resume = null;
+            try (PreparedStatement ps = conn.prepareStatement("" +
+                    "SELECT * FROM resume r " +
+                    "LEFT JOIN contact c " +
+                    "ON r.uuid = c.resume_uuid " +
+                    "WHERE r.uuid = ?")) {
+                ps.setString(1, uuid);
+                ResultSet rs = ps.executeQuery();
+                if (!rs.next()) {
+                    throw new NotExistStorageException(uuid);
+                }
+                resume = new Resume(rs.getString("uuid").trim(), rs.getString("full_name"));
+                do {
+                    addContact(resume, rs);
+                } while (rs.next());
+            }
+            try (PreparedStatement ps = conn.prepareStatement("" +
+                    "SELECT type, content FROM section " +
+                    "WHERE resume_uuid = ?")) {
+                ps.setString(1, uuid);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    addSection(resume, rs);
+                }
+            }
+            return resume;
+        });
     }
 
     @Override
@@ -63,15 +69,9 @@ public class SQLStorage implements Storage {
                 if (ps.executeUpdate() == 0)
                     throw new NotExistStorageException(resume.getUuid());
             }
-            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM contact WHERE resume_uuid = ?")) {
-                ps.setString(1, resume.getUuid());
-                ps.executeUpdate();
-            }
+            deleteDetails(resume, "contact");
             insertContacts(resume, conn);
-            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM section WHERE resume_uuid = ?")) {
-                ps.setString(1, resume.getUuid());
-                ps.executeUpdate();
-            }
+            deleteDetails(resume, "section");
             insertSections(resume, conn);
             return null;
         });
@@ -144,6 +144,14 @@ public class SQLStorage implements Storage {
         });
     }
 
+    private void deleteDetails(Resume resume, String tableName) {
+        helper.execute("DELETE FROM " + tableName + " WHERE resume_uuid = ?", ps -> {
+            ps.setString(1, resume.getUuid());
+            ps.executeUpdate();
+            return null;
+        });
+    }
+
     private void insertContacts(Resume resume, Connection conn) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement("INSERT INTO contact(resume_uuid, type, value) VALUES(?,?,?)")) {
             for (Map.Entry<ContactType, String> e : resume.getContacts().entrySet()) {
@@ -177,13 +185,7 @@ public class SQLStorage implements Storage {
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        StringBuilder builder = new StringBuilder();
-                        for (String subSection : ((ListSection) (e.getValue())).getContent()) {
-                            builder.append(subSection);
-                            builder.append("\n");
-                        }
-                        if (builder.length() > 0) builder.setLength(builder.length() - 1);
-                        ps.setString(3, builder.toString());
+                        ps.setString(3, String.join("\n", ((ListSection) (e.getValue())).getContent()));
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
@@ -194,21 +196,19 @@ public class SQLStorage implements Storage {
         }
     }
 
-    private void addSection(Resume resume, ResultSet rs_s) throws SQLException {
-        SectionType type = SectionType.valueOf(rs_s.getString("type"));
+    private void addSection(Resume resume, ResultSet rs) throws SQLException {
+        SectionType type = SectionType.valueOf(rs.getString("type"));
         switch (type) {
             case OBJECTIVE:
             case PERSONAL:
-                resume.addSection(type, new TextSection(rs_s.getString("content")));
+                resume.addSection(type, new TextSection(rs.getString("content")));
                 break;
             case ACHIEVEMENT:
             case QUALIFICATIONS:
-                StringTokenizer tokenizer = new StringTokenizer(rs_s.getString("content"), "\n");
-                List<String> sections = new ArrayList<>(tokenizer.countTokens());
-                while (tokenizer.hasMoreTokens()) {
-                    sections.add(tokenizer.nextToken());
+                String joined = rs.getString("content");
+                if (joined != null) {
+                    resume.addSection(type, new ListSection(joined.split("\n")));
                 }
-                resume.addSection(type, new ListSection(sections));
                 break;
             case EXPERIENCE:
             case EDUCATION:

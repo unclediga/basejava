@@ -39,9 +39,7 @@ public class ResumeServlet extends HttpServlet {
         writer.write("<th>UUID</td>");
         writer.write("<th>Full Name</td>");
         writer.write("</tr>");
-        System.out.println("size " + storage.size());
         for (Resume resume : storage.getAllSorted()) {
-            System.out.println("Resume " + resume);
             writer.write("<tr>");
             writer.write("<td>" + resume.getUuid() + "</td><td>" + resume.getFullName() + "</td>");
             writer.write("</tr>");
