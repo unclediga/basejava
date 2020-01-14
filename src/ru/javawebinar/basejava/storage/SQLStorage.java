@@ -1,5 +1,7 @@
 package ru.javawebinar.basejava.storage;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.*;
@@ -13,6 +15,7 @@ import java.util.Map;
 
 public class SQLStorage implements Storage {
     private final SQLHelper helper;
+    private final Gson GSON = new GsonBuilder().create();
 
     public SQLStorage(String dbUrl, String dbUser, String dbPassword) {
         try {
@@ -44,7 +47,7 @@ public class SQLStorage implements Storage {
                 }
                 resume = new Resume(rs.getString("uuid").trim(), rs.getString("full_name"));
                 do {
-                    addContact(resume, rs);
+                    addContact(resume, rs.getString("type"), rs.getString("value"));
                 } while (rs.next());
             }
             try (PreparedStatement ps = conn.prepareStatement("" +
@@ -53,7 +56,7 @@ public class SQLStorage implements Storage {
                 ps.setString(1, uuid);
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
-                    addSection(resume, rs);
+                    addSection(resume, rs.getString("type"), rs.getString("content"));
                 }
             }
             return resume;
@@ -105,35 +108,70 @@ public class SQLStorage implements Storage {
     @Override
     public List<Resume> getAllSorted() {
         return helper.execute("" +
-                "SELECT " +
-                "  r.full_name, r.uuid, " +
-                "  c.type, c.value " +
-                "FROM resume r LEFT JOIN contact c " +
-                "ON r.uuid = c.resume_uuid " +
-                "ORDER BY r.full_name, r.uuid", ps -> {
-            ResultSet rs = ps.executeQuery();
-            LinkedHashMap<String, Resume> resumes = new LinkedHashMap<>();
-            while (rs.next()) {
-                String uuid = rs.getString("uuid").trim();
-                Resume resume = new Resume(uuid, rs.getString("full_name"));
-                resumes.put(uuid, resume);
-                helper.execute("SELECT type, value FROM contact c WHERE resume_uuid = ?", ps_c -> {
-                    ps_c.setString(1, uuid);
-                    ResultSet rs_c = ps_c.executeQuery();
-                    while (rs_c.next())
-                        addContact(resume, rs_c);
-                    return null;
+                        "select r.uuid," +
+                        "r.full_name," +
+                        "(select json_object_agg(type,value) from contact where resume_uuid = r.uuid)," +
+                        "(select json_object_agg(type,content) from section where resume_uuid = r.uuid) " +
+                        "from resume r " +
+                        "ORDER BY r.full_name, r.uuid",
+                ps -> {
+                    LinkedHashMap<String, Resume> resumes = new LinkedHashMap<>();
+                    ResultSet rs = ps.executeQuery();
+                    while (rs.next()) {
+                        String uuid = rs.getString("uuid").trim();
+                        Resume resume = new Resume(uuid, rs.getString("full_name"));
+                        resumes.put(uuid, resume);
+                        new JsonContentProcessor(resume, rs.getString(3), this::addContact).process();
+                        new JsonContentProcessor(resume, rs.getString(4), this::addSection).process();
+                    }
+                    return new ArrayList<>(resumes.values());
                 });
-                helper.execute("SELECT type, content FROM section WHERE resume_uuid = ?", ps_s -> {
-                    ps_s.setString(1, uuid);
-                    ResultSet rs_s = ps_s.executeQuery();
-                    while (rs_s.next())
-                        addSection(resume, rs_s);
-                    return null;
-                });
+    }
+
+    interface ElementProcessor {
+        void addElement(Resume resume, String type, String content);
+    }
+
+    private class JsonContentProcessor {
+        private final Resume resume;
+        private final String content;
+        private final ElementProcessor elementProcessor;
+
+        JsonContentProcessor(Resume resume, String content, ElementProcessor elementProcessor) {
+            this.resume = resume;
+            this.content = content;
+            this.elementProcessor = elementProcessor;
+        }
+
+        public void process() {
+            if (content == null) return;
+            Map<String, String> el = GSON.<Map<String, String>>fromJson(content, Map.class);
+            if (el != null) {
+                for (String type : el.keySet()) {
+                    elementProcessor.addElement(resume, type, el.get(type));
+                }
             }
-            return new ArrayList<>(resumes.values());
-        });
+        }
+    }
+
+    private void addContacts(Resume resume, String contacts) {
+        if (contacts == null) return;
+        Map<String, String> el = GSON.<Map<String, String>>fromJson(contacts, Map.class);
+        if (el != null) {
+            for (String type : el.keySet()) {
+                addContact(resume, type, el.get(type));
+            }
+        }
+    }
+
+    private void addSections(Resume resume, String sections) {
+        if (sections == null) return;
+        Map<String, String> el = GSON.<Map<String, String>>fromJson(sections, Map.class);
+        if (el != null) {
+            for (String type : el.keySet()) {
+                addSection(resume, type, el.get(type));
+            }
+        }
     }
 
     @Override
@@ -164,11 +202,9 @@ public class SQLStorage implements Storage {
         }
     }
 
-    private void addContact(Resume resume, ResultSet rs) throws SQLException {
-        String type = rs.getString("type");
+    private void addContact(Resume resume, String type, String value) {
         if (type == null) return;
         ContactType contactType = ContactType.valueOf(type);
-        String value = rs.getString("value");
         resume.addContact(contactType, value);
     }
 
@@ -196,18 +232,17 @@ public class SQLStorage implements Storage {
         }
     }
 
-    private void addSection(Resume resume, ResultSet rs) throws SQLException {
-        SectionType type = SectionType.valueOf(rs.getString("type"));
-        switch (type) {
+    private void addSection(Resume resume, String type, String content) {
+        SectionType sectionType = SectionType.valueOf(type);
+        switch (sectionType) {
             case OBJECTIVE:
             case PERSONAL:
-                resume.addSection(type, new TextSection(rs.getString("content")));
+                resume.addSection(sectionType, new TextSection(content));
                 break;
             case ACHIEVEMENT:
             case QUALIFICATIONS:
-                String joined = rs.getString("content");
-                if (joined != null) {
-                    resume.addSection(type, new ListSection(joined.split("\n")));
+                if (content != null) {
+                    resume.addSection(sectionType, new ListSection(content.split("\n")));
                 }
                 break;
             case EXPERIENCE:
