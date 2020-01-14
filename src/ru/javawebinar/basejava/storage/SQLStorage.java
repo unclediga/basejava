@@ -154,26 +154,6 @@ public class SQLStorage implements Storage {
         }
     }
 
-    private void addContacts(Resume resume, String contacts) {
-        if (contacts == null) return;
-        Map<String, String> el = GSON.<Map<String, String>>fromJson(contacts, Map.class);
-        if (el != null) {
-            for (String type : el.keySet()) {
-                addContact(resume, type, el.get(type));
-            }
-        }
-    }
-
-    private void addSections(Resume resume, String sections) {
-        if (sections == null) return;
-        Map<String, String> el = GSON.<Map<String, String>>fromJson(sections, Map.class);
-        if (el != null) {
-            for (String type : el.keySet()) {
-                addSection(resume, type, el.get(type));
-            }
-        }
-    }
-
     @Override
     public int size() {
         return helper.execute("SELECT count(*) FROM resume", ps -> {
