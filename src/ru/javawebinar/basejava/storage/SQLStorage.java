@@ -72,9 +72,9 @@ public class SQLStorage implements Storage {
                 if (ps.executeUpdate() == 0)
                     throw new NotExistStorageException(resume.getUuid());
             }
-            deleteDetails(resume, "contact");
+            deleteDetails(resume, "DELETE FROM contact WHERE resume_uuid = ?");
             insertContacts(resume, conn);
-            deleteDetails(resume, "section");
+            deleteDetails(resume, "DELETE FROM section WHERE resume_uuid = ?");
             insertSections(resume, conn);
             return null;
         });
@@ -107,51 +107,38 @@ public class SQLStorage implements Storage {
 
     @Override
     public List<Resume> getAllSorted() {
-        return helper.execute("" +
-                        "select r.uuid," +
-                        "r.full_name," +
-                        "(select json_object_agg(type,value) from contact where resume_uuid = r.uuid)," +
-                        "(select json_object_agg(type,content) from section where resume_uuid = r.uuid) " +
-                        "from resume r " +
-                        "ORDER BY r.full_name, r.uuid",
-                ps -> {
-                    LinkedHashMap<String, Resume> resumes = new LinkedHashMap<>();
-                    ResultSet rs = ps.executeQuery();
-                    while (rs.next()) {
-                        String uuid = rs.getString("uuid").trim();
-                        Resume resume = new Resume(uuid, rs.getString("full_name"));
-                        resumes.put(uuid, resume);
-                        new JsonContentProcessor(resume, rs.getString(3), this::addContact).process();
-                        new JsonContentProcessor(resume, rs.getString(4), this::addSection).process();
+        return helper.executeTransactional(conn -> {
+            LinkedHashMap<String, Resume> resumes = new LinkedHashMap<>();
+            try (PreparedStatement ps = conn.prepareStatement("" +
+                    "SELECT uuid, full_name " +
+                    "FROM resume " +
+                    "ORDER BY full_name, uuid");
+                 PreparedStatement ps_c = conn.prepareStatement("" +
+                         "SELECT type, value " +
+                         "FROM contact WHERE resume_uuid = ?");
+                 PreparedStatement ps_s = conn.prepareStatement("" +
+                         "SELECT type, content " +
+                         "FROM section WHERE resume_uuid = ?");
+            ) {
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    String uuid = rs.getString("uuid").trim();
+                    Resume resume = new Resume(uuid, rs.getString("full_name"));
+                    resumes.put(uuid, resume);
+                    ps_c.setString(1, uuid);
+                    ResultSet rs2 = ps_c.executeQuery();
+                    while (rs2.next()) {
+                        addContact(resume, rs2.getString("type"), rs2.getString("value"));
                     }
-                    return new ArrayList<>(resumes.values());
-                });
-    }
-
-    interface ElementProcessor {
-        void addElement(Resume resume, String type, String content);
-    }
-
-    private class JsonContentProcessor {
-        private final Resume resume;
-        private final String content;
-        private final ElementProcessor elementProcessor;
-
-        JsonContentProcessor(Resume resume, String content, ElementProcessor elementProcessor) {
-            this.resume = resume;
-            this.content = content;
-            this.elementProcessor = elementProcessor;
-        }
-
-        public void process() {
-            if (content == null) return;
-            Map<String, String> el = GSON.<Map<String, String>>fromJson(content, Map.class);
-            if (el != null) {
-                for (String type : el.keySet()) {
-                    elementProcessor.addElement(resume, type, el.get(type));
+                    ps_s.setString(1, uuid);
+                    rs2 = ps_s.executeQuery();
+                    while (rs2.next()) {
+                        addSection(resume, rs2.getString("type"), rs2.getString("content"));
+                    }
                 }
             }
-        }
+            return new ArrayList<>(resumes.values());
+        });
     }
 
     @Override
@@ -162,8 +149,8 @@ public class SQLStorage implements Storage {
         });
     }
 
-    private void deleteDetails(Resume resume, String tableName) {
-        helper.execute("DELETE FROM " + tableName + " WHERE resume_uuid = ?", ps -> {
+    private void deleteDetails(Resume resume, String sql) {
+        helper.execute(sql, ps -> {
             ps.setString(1, resume.getUuid());
             ps.executeUpdate();
             return null;
