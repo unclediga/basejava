@@ -1,8 +1,7 @@
 package ru.javawebinar.basejava.web;
 
 import ru.javawebinar.basejava.Config;
-import ru.javawebinar.basejava.model.ContactType;
-import ru.javawebinar.basejava.model.Resume;
+import ru.javawebinar.basejava.model.*;
 import ru.javawebinar.basejava.storage.Storage;
 
 import javax.servlet.ServletConfig;
@@ -11,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class ResumeServlet extends HttpServlet {
     private Storage storage;
@@ -26,17 +26,37 @@ public class ResumeServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String uuid = request.getParameter("uuid");
         String fullName = request.getParameter("fullName");
-        Resume r = storage.get(uuid);
-        r.setFullName(fullName);
+        Resume resume = storage.get(uuid);
+        resume.setFullName(fullName);
         for (ContactType type : ContactType.values()) {
             String value = request.getParameter(type.name());
             if (value != null && value.trim().length() != 0) {
-                r.addContact(type, value);
+                resume.addContact(type, value);
             } else {
-                r.getContacts().remove(type);
+                resume.getContacts().remove(type);
             }
         }
-        storage.update(r);
+        for (SectionType type : SectionType.values()) {
+            String[] values = request.getParameterValues(type.name());
+            if (values != null) {
+                switch (type) {
+                    case OBJECTIVE:
+                    case PERSONAL:
+                        resume.addSection(type, new TextSection(values[0]));
+                        break;
+                    case ACHIEVEMENT:
+                    case QUALIFICATIONS:
+                        resume.addSection(type, new ListSection(Arrays.asList(values)));
+                        break;
+                    case EXPERIENCE:
+                    case EDUCATION:
+                }
+
+            } else {
+                resume.getSections().remove(type);
+            }
+        }
+        storage.update(resume);
         response.sendRedirect("resume");
     }
 
