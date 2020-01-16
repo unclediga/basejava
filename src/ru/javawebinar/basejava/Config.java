@@ -11,13 +11,20 @@ import java.util.Properties;
 
 public class Config {
     private static File PROPS = new File("config\\resumes.properties");
-    private static Config INSTANCE = new Config();
+    private static Config INSTANCE;
     private final File storageDir;
     private final Storage storage;
 
 
     public static Config get() {
+        if (INSTANCE == null)
+            INSTANCE = new Config();
         return INSTANCE;
+    }
+
+    public static Config get(String path) {
+        PROPS = new File(path);
+        return get();
     }
 
     private Config() {
