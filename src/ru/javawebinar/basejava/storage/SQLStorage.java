@@ -1,7 +1,5 @@
 package ru.javawebinar.basejava.storage;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.*;
@@ -15,7 +13,6 @@ import java.util.Map;
 
 public class SQLStorage implements Storage {
     private final SQLHelper helper;
-    private final Gson GSON = new GsonBuilder().create();
 
     public SQLStorage(String dbUrl, String dbUser, String dbPassword) {
         try {
