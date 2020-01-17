@@ -35,11 +35,9 @@
         </c:when>
         <c:when test="${sectionEntry.key eq SectionType.ACHIEVEMENT or sectionEntry.key eq SectionType.QUALIFICATIONS}">
             <ul>
-                <%
-                    for (String subsection : ((ListSection) (sectionEntry.getValue())).getContent()) {
-                        out.println("<li>" + subsection + "</li>");
-                    }
-                %>
+                <c:forEach var="subsection" items="<%=((ListSection) (sectionEntry.getValue())).getContent()%>">
+                    <li>${subsection}</li>
+                </c:forEach>
             </ul>
         </c:when>
         <c:otherwise>

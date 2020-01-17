@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Objects;
 
 public class ResumeServlet extends HttpServlet {
     private Storage storage;
@@ -26,7 +26,13 @@ public class ResumeServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String uuid = request.getParameter("uuid");
         String fullName = request.getParameter("fullName");
-        Resume resume = storage.get(uuid);
+        boolean isNew = Objects.equals(request.getParameter("new"), "true");
+        Resume resume = null;
+        if (isNew) {
+            resume = new Resume(uuid, fullName);
+        } else {
+            resume = storage.get(uuid);
+        }
         resume.setFullName(fullName);
         for (ContactType type : ContactType.values()) {
             String value = request.getParameter(type.name());
@@ -37,16 +43,16 @@ public class ResumeServlet extends HttpServlet {
             }
         }
         for (SectionType type : SectionType.values()) {
-            String[] values = request.getParameterValues(type.name());
-            if (values != null) {
+            String value = request.getParameter(type.name());
+            if (value != null && value.length() > 0) {
                 switch (type) {
                     case OBJECTIVE:
                     case PERSONAL:
-                        resume.addSection(type, new TextSection(values[0]));
+                        resume.addSection(type, new TextSection(value));
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        resume.addSection(type, new ListSection(Arrays.asList(values)));
+                        resume.addSection(type, new ListSection((value.split("\n"))));
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
@@ -56,7 +62,11 @@ public class ResumeServlet extends HttpServlet {
                 resume.getSections().remove(type);
             }
         }
-        storage.update(resume);
+        if (isNew) {
+            storage.save(resume);
+        } else {
+            storage.update(resume);
+        }
         response.sendRedirect("resume");
     }
 
@@ -77,6 +87,9 @@ public class ResumeServlet extends HttpServlet {
             case "view":
             case "edit":
                 r = storage.get(uuid);
+                break;
+            case "new":
+                r = new Resume("New Resume");
                 break;
             default:
                 throw new IllegalArgumentException("Action " + action + " is illegal");

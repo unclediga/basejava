@@ -30,6 +30,11 @@
         </c:forEach>
     </table>
 </section>
+<section>
+    <a href="resume?action=new">
+        <button> New <img src="img/add.png"></button>
+    </a>
+</section>
 <jsp:include page="fragments/footer.jsp"/>
 </body>
 </html>
