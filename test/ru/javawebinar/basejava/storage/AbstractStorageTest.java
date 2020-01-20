@@ -9,6 +9,7 @@ import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.*;
 
 import java.io.File;
+import java.time.Month;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -42,26 +43,26 @@ public abstract class AbstractStorageTest {
         resume_1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
         resume_1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achivment11", "Achivment12", "Achivment13"));
         resume_1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
-//        resume_1.addSection(SectionType.EXPERIENCE,
-//                new OrganizationSection(
-//                        new OrganizationSection.Organization("Organization11", "http://Organization11.ru",
-//                                new OrganizationSection.Position(2005, Month.JANUARY, "position1", "content1")),
-//                        new OrganizationSection.Organization("Organization11", "http://Organization11.ru",
-//                                new OrganizationSection.Position(2001, Month.MARCH, 2005, Month.JANUARY, "position2", "content2"))));
-//        resume_1.addSection(SectionType.EDUCATION,
-//                new OrganizationSection(
-//                        new OrganizationSection.Organization("Institute", null,
-//                                new OrganizationSection.Position(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", null)),
-//                        new OrganizationSection.Organization("Institute", null,
-//                                new OrganizationSection.Position(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet")),
-//                        new OrganizationSection.Organization("Organization12", "http://Organization12.ru",
-//                                new OrganizationSection.Position(2005, Month.FEBRUARY, "post", "IT facultet"))));
+        resume_1.addSection(SectionType.EXPERIENCE,
+                new OrganizationSection(
+                        new OrganizationSection.Organization("Organization11", "http://Organization11.ru",
+                                new OrganizationSection.Position(2005, Month.JANUARY, "position1", "content1")),
+                        new OrganizationSection.Organization("Organization11", "http://Organization11.ru",
+                                new OrganizationSection.Position(2001, Month.MARCH, 2005, Month.JANUARY, "position2", "content2"))));
+        resume_1.addSection(SectionType.EDUCATION,
+                new OrganizationSection(
+                        new OrganizationSection.Organization("Institute", null,
+                                new OrganizationSection.Position(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", null)),
+                        new OrganizationSection.Organization("Institute", null,
+                                new OrganizationSection.Position(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet")),
+                        new OrganizationSection.Organization("Organization12", "http://Organization12.ru",
+                                new OrganizationSection.Position(2005, Month.FEBRUARY, "post", "IT facultet"))));
         resume_2.addContact(ContactType.SKYPE, "skype2");
         resume_2.addContact(ContactType.TELEPHONE, "22222");
-//        resume_2.addSection(SectionType.EXPERIENCE,
-//                new OrganizationSection(
-//                        new OrganizationSection.Organization("Organization2", "http://Organization2.ru",
-//                                new OrganizationSection.Position(2015, Month.JANUARY, "position1", "content1"))));
+        resume_2.addSection(SectionType.EXPERIENCE,
+                new OrganizationSection(
+                        new OrganizationSection.Organization("Organization2", "http://Organization2.ru",
+                                new OrganizationSection.Position(2015, Month.JANUARY, "position1", "content1"))));
     }
 
     protected AbstractStorageTest(Storage storage) {
