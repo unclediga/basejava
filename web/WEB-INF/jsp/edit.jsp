@@ -37,7 +37,7 @@
                     <jsp:useBean id="curSection"
                                  type="ru.javawebinar.basejava.model.AbstractSection"/>
                     <c:choose>
-                        <c:when test="${type == 'PERSONAL' or type eq 'OBJECTIVE'}">
+                        <c:when test="${type == 'PERSONAL' or type == 'OBJECTIVE'}">
                             <input type="text" name="${type}" size=50
                                    value="<%= ((TextSection)(curSection)).getContent() %>"><br/>
                         </c:when>
