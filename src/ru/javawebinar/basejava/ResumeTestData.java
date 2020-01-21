@@ -27,7 +27,7 @@ public class ResumeTestData {
         System.out.println("comp sections PERS:" + resume.getSection(SectionType.PERSONAL).equals(resume2.getSection(SectionType.PERSONAL)));
         System.out.println("comp sections EDUC:" + resume.getSection(SectionType.EDUCATION).equals(resume2.getSection(SectionType.EDUCATION)));
 
-        resume2.addContact(ContactType.TELEPHONE, "+7(495)123-45-67");
+        resume2.setContact(ContactType.TELEPHONE, "+7(495)123-45-67");
         section.addSubsection("Siemens AG", "http://www.siemens.ru/",
                 2005, Month.JANUARY, 2005, Month.APRIL, "Tester", "3 месяца обучения мобильным IN сетям (Берлин)");
 
@@ -41,13 +41,13 @@ public class ResumeTestData {
 
     private ResumeTestData() {
         resume = new Resume("Григорий Кислин");
-        resume.addContact(ContactType.TELEPHONE, "+7(921) 855-0482");
-        resume.addContact(ContactType.EMAIL, "gkislin@yandex.ru");
-        resume.addContact(ContactType.SKYPE, "grigory.kislin");
-        resume.addContact(ContactType.LINKEDIN, "https://www.linkedin.com/in/gkislin");
-        resume.addContact(ContactType.GITHUB, "https://github.com/gkislin");
-        resume.addContact(ContactType.STACKOVERFLOW, "https://stackoverflow.com/users/548473");
-        resume.addContact(ContactType.WEBLINK, "http://gkislin.ru/");
+        resume.setContact(ContactType.TELEPHONE, "+7(921) 855-0482");
+        resume.setContact(ContactType.EMAIL, "gkislin@yandex.ru");
+        resume.setContact(ContactType.SKYPE, "grigory.kislin");
+        resume.setContact(ContactType.LINKEDIN, "https://www.linkedin.com/in/gkislin");
+        resume.setContact(ContactType.GITHUB, "https://github.com/gkislin");
+        resume.setContact(ContactType.STACKOVERFLOW, "https://stackoverflow.com/users/548473");
+        resume.setContact(ContactType.WEBLINK, "http://gkislin.ru/");
 
         addObjective("Ведущий стажировок и корпоративного обучения по Java Web и Enterprise технологиям");
 
@@ -175,7 +175,7 @@ public class ResumeTestData {
                     section = new OrganizationSection();
                     break;
             }
-            resume.addSection(sectionType, section);
+            resume.setSection(sectionType, section);
         }
         return section;
     }

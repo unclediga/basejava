@@ -170,7 +170,7 @@ public class SQLStorage implements Storage {
     private void addContact(Resume resume, String type, String value) {
         if (type == null) return;
         ContactType contactType = ContactType.valueOf(type);
-        resume.addContact(contactType, value);
+        resume.setContact(contactType, value);
     }
 
     private void insertSections(Resume resume, Connection conn) throws SQLException {
@@ -203,18 +203,18 @@ public class SQLStorage implements Storage {
         switch (sectionType) {
             case OBJECTIVE:
             case PERSONAL:
-                resume.addSection(sectionType, new TextSection(content));
+                resume.setSection(sectionType, new TextSection(content));
                 break;
             case ACHIEVEMENT:
             case QUALIFICATIONS:
                 if (content != null) {
-                    resume.addSection(sectionType, JsonParser.read(content, ListSection.class));
+                    resume.setSection(sectionType, JsonParser.read(content, ListSection.class));
                 }
                 break;
             case EXPERIENCE:
             case EDUCATION:
                 if (content != null) {
-                    resume.addSection(sectionType, JsonParser.read(content, OrganizationSection.class));
+                    resume.setSection(sectionType, JsonParser.read(content, OrganizationSection.class));
                 }
         }
     }
