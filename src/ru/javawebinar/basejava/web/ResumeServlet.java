@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ResumeServlet extends HttpServlet {
     private Storage storage;
@@ -30,10 +29,10 @@ public class ResumeServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String uuid = request.getParameter("uuid");
         String fullName = request.getParameter("fullName");
-        boolean isNew = Objects.equals(request.getParameter("new"), "true");
+        boolean isNew = (uuid == null || uuid.length() == 0);
         Resume resume = null;
         if (isNew) {
-            resume = new Resume(uuid, fullName);
+            resume = new Resume(fullName);
         } else {
             resume = storage.get(uuid);
         }
@@ -121,12 +120,12 @@ public class ResumeServlet extends HttpServlet {
                 resume = storage.get(uuid);
                 for (SectionType type : new SectionType[]{SectionType.PERSONAL, SectionType.OBJECTIVE}) {
                     if (resume.getSection(type) == null) {
-                        resume.setSection(type, new TextSection(""));
+                        resume.setSection(type, TextSection.EMPTY);
                     }
                 }
                 for (SectionType type : new SectionType[]{SectionType.ACHIEVEMENT, SectionType.QUALIFICATIONS}) {
                     if (resume.getSection(type) == null) {
-                        resume.setSection(type, new ListSection());
+                        resume.setSection(type, ListSection.EMPTY);
                     }
                 }
                 for (SectionType type : new SectionType[]{SectionType.EXPERIENCE, SectionType.EDUCATION}) {
@@ -147,7 +146,7 @@ public class ResumeServlet extends HttpServlet {
                 }
                 break;
             case "new":
-                resume = new Resume("New Resume");
+                resume = Resume.EMPTY;
                 break;
             default:
                 throw new IllegalArgumentException("Action " + action + " is illegal");
