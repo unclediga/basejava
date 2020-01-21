@@ -30,6 +30,10 @@ public class OrganizationSection extends AbstractSection {
         }
     }
 
+    public OrganizationSection(List<Organization> organizations) {
+        content.addAll(organizations);
+    }
+
     public List<Organization> getContent() {
         return content;
     }
@@ -44,6 +48,7 @@ public class OrganizationSection extends AbstractSection {
         private static final long serialVersionUID = 1L;
         private Link link;
         private List<Position> positions = new ArrayList<>();
+        public static final Organization EMPTY = new Organization("", "", Position.EMPTY);
 
         public Organization() {
         }
@@ -182,6 +187,7 @@ public class OrganizationSection extends AbstractSection {
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class Position implements Serializable {
         private static final long serialVersionUID = 1L;
+        public static final Position EMPTY = new Position();
         @XmlJavaTypeAdapter(LocalDateAdapter.class)
         private LocalDate dateFrom;
         @XmlJavaTypeAdapter(LocalDateAdapter.class)

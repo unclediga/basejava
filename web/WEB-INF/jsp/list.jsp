@@ -17,7 +17,6 @@
             <th></th>
             <th></th>
         </tr>
-        <jsp:useBean id="resumes" scope="request" type="java.util.List"/>
         <c:forEach var="resume" items="${resumes}">
             <jsp:useBean id="resume" type="ru.javawebinar.basejava.model.Resume"/>
             <tr>
@@ -29,6 +28,11 @@
             </tr>
         </c:forEach>
     </table>
+</section>
+<section>
+    <a href="resume?action=new">
+        <button> New <img src="img/add.png"></button>
+    </a>
 </section>
 <jsp:include page="fragments/footer.jsp"/>
 </body>

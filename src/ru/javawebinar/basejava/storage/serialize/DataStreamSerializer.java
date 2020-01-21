@@ -15,7 +15,7 @@ public class DataStreamSerializer implements StreamSerializer {
             String uuid = readUTF(distream);
             String fullName = readUTF(distream);
             Resume resume = new Resume(uuid, fullName);
-            readSequence(distream, () -> resume.addContact(ContactType.valueOf(readUTF(distream)), readUTF(distream)));
+            readSequence(distream, () -> resume.setContact(ContactType.valueOf(readUTF(distream)), readUTF(distream)));
             readSequence(distream, () -> {
                 SectionType sectionType = SectionType.valueOf(readUTF(distream));
                 AbstractSection section;
@@ -35,7 +35,7 @@ public class DataStreamSerializer implements StreamSerializer {
                     default:
                         throw new IllegalStateException("Unknown section type " + sectionType);
                 }
-                resume.addSection(sectionType, section);
+                resume.setSection(sectionType, section);
             });
             return resume;
         }

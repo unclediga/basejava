@@ -4,6 +4,7 @@ import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.*;
 import ru.javawebinar.basejava.sql.SQLHelper;
+import ru.javawebinar.basejava.util.JsonParser;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -169,7 +170,7 @@ public class SQLStorage implements Storage {
     private void addContact(Resume resume, String type, String value) {
         if (type == null) return;
         ContactType contactType = ContactType.valueOf(type);
-        resume.addContact(contactType, value);
+        resume.setContact(contactType, value);
     }
 
     private void insertSections(Resume resume, Connection conn) throws SQLException {
@@ -185,10 +186,11 @@ public class SQLStorage implements Storage {
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        ps.setString(3, String.join("\n", ((ListSection) (e.getValue())).getContent()));
+                        ps.setString(3, JsonParser.write(((ListSection) (e.getValue())), ListSection.class));
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
+                        ps.setString(3, JsonParser.write(((OrganizationSection) (e.getValue())), OrganizationSection.class));
                 }
                 ps.addBatch();
             }
@@ -201,16 +203,19 @@ public class SQLStorage implements Storage {
         switch (sectionType) {
             case OBJECTIVE:
             case PERSONAL:
-                resume.addSection(sectionType, new TextSection(content));
+                resume.setSection(sectionType, new TextSection(content));
                 break;
             case ACHIEVEMENT:
             case QUALIFICATIONS:
                 if (content != null) {
-                    resume.addSection(sectionType, new ListSection(content.split("\n")));
+                    resume.setSection(sectionType, JsonParser.read(content, ListSection.class));
                 }
                 break;
             case EXPERIENCE:
             case EDUCATION:
+                if (content != null) {
+                    resume.setSection(sectionType, JsonParser.read(content, OrganizationSection.class));
+                }
         }
     }
 }

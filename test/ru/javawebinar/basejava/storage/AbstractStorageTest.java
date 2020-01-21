@@ -6,63 +6,19 @@ import org.junit.Test;
 import ru.javawebinar.basejava.Config;
 import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
-import ru.javawebinar.basejava.model.*;
+import ru.javawebinar.basejava.model.ContactType;
+import ru.javawebinar.basejava.model.Resume;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static ru.javawebinar.basejava.TestData.*;
 
 public abstract class AbstractStorageTest {
     protected Storage storage;
     protected static final File STORAGE_DIR = Config.get().getStorageDir();
 
-    private static final String UUID_1 = UUID.randomUUID().toString();
-    private static final String UUID_2 = UUID.randomUUID().toString();
-    private static final String UUID_3 = UUID.randomUUID().toString();
-    private static final String UUID_4 = UUID.randomUUID().toString();
-
-    private static final Resume resume_1;
-    private static final Resume resume_2;
-    private static final Resume resume_3;
-    private static final Resume resume_4;
-
-    static {
-        resume_1 = new Resume(UUID_1, "Full Name 1");
-        resume_2 = new Resume(UUID_2, "Full Name 2");
-        resume_3 = new Resume(UUID_3, "Full Name 3");
-        resume_4 = new Resume(UUID_4, "Full Name 4");
-        resume_1.addContact(ContactType.EMAIL, "mail1@ya.ru");
-        resume_1.addContact(ContactType.TELEPHONE, "11111");
-        resume_4.addContact(ContactType.TELEPHONE, "44444");
-        resume_4.addContact(ContactType.SKYPE, "Skype");
-
-        resume_1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
-        resume_1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
-        resume_1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achivment11", "Achivment12", "Achivment13"));
-        resume_1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
-//        resume_1.addSection(SectionType.EXPERIENCE,
-//                new OrganizationSection(
-//                        new OrganizationSection.Organization("Organization11", "http://Organization11.ru",
-//                                new OrganizationSection.Position(2005, Month.JANUARY, "position1", "content1")),
-//                        new OrganizationSection.Organization("Organization11", "http://Organization11.ru",
-//                                new OrganizationSection.Position(2001, Month.MARCH, 2005, Month.JANUARY, "position2", "content2"))));
-//        resume_1.addSection(SectionType.EDUCATION,
-//                new OrganizationSection(
-//                        new OrganizationSection.Organization("Institute", null,
-//                                new OrganizationSection.Position(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", null)),
-//                        new OrganizationSection.Organization("Institute", null,
-//                                new OrganizationSection.Position(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet")),
-//                        new OrganizationSection.Organization("Organization12", "http://Organization12.ru",
-//                                new OrganizationSection.Position(2005, Month.FEBRUARY, "post", "IT facultet"))));
-        resume_2.addContact(ContactType.SKYPE, "skype2");
-        resume_2.addContact(ContactType.TELEPHONE, "22222");
-//        resume_2.addSection(SectionType.EXPERIENCE,
-//                new OrganizationSection(
-//                        new OrganizationSection.Organization("Organization2", "http://Organization2.ru",
-//                                new OrganizationSection.Position(2015, Month.JANUARY, "position1", "content1"))));
-    }
 
     protected AbstractStorageTest(Storage storage) {
         this.storage = storage;
@@ -90,9 +46,9 @@ public abstract class AbstractStorageTest {
     @Test
     public void update() throws Exception {
         Resume resume = new Resume(UUID_2, "Full Name2");
-        resume_2.addContact(ContactType.EMAIL, "mail1@google.com");
-        resume_2.addContact(ContactType.SKYPE, "NewSkype");
-        resume_2.addContact(ContactType.TELEPHONE, "+7 921 222-22-22");
+        resume_2.setContact(ContactType.EMAIL, "mail1@google.com");
+        resume_2.setContact(ContactType.SKYPE, "NewSkype");
+        resume_2.setContact(ContactType.TELEPHONE, "+7 921 222-22-22");
         storage.update(resume);
         Assert.assertEquals(resume, storage.get(UUID_2));
     }
