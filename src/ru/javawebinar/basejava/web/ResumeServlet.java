@@ -21,8 +21,7 @@ public class ResumeServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        String realPath = config.getServletContext().getRealPath("/config/resumes.properties");
-        storage = Config.get(realPath).getStorage();
+        storage = Config.get().getStorage();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
